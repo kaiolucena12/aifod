@@ -1,0 +1,1 @@
+export default function Page(){return <section className="placeholder"><span className="eyebrow">CATEGORIAS</span><h1>X · Comfort · Black</h1><p>As páginas internas de cada categoria serão desenvolvidas na próxima etapa.</p></section>}

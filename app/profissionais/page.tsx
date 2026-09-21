@@ -1,0 +1,1 @@
+export default function Page(){return <section className="placeholder"><span className="eyebrow">PRÓXIMA ETAPA</span><h1>Explorar perfis</h1><p>A listagem será aprimorada na próxima versão.</p></section>}
