@@ -102,53 +102,53 @@ export default function Header() {
               Escolha seu perfil para continuar.
             </p>
 
-            <div className="choiceGrid">
+           <div className="choiceGrid">
 
-              <Link
-                href="/cadastro?tipo=acompanhante"
-                className="choiceCard choiceFeatured"
-                onClick={() => setRegisterOpen(false)}
-              >
-                <span className="choiceIcon">
-                  ✦
-                </span>
+  <Link
+  href="/cadastro/acompanhante"
+  className="choiceCard choiceFeatured"
+  onClick={() => setRegisterOpen(false)}
+>
+    <span className="choiceIcon">
+      ✦
+    </span>
 
-                <div>
-                  <strong>
-                    Sou acompanhante
-                  </strong>
+    <div>
+      <strong>
+        Sou acompanhante
+      </strong>
 
-                  <small>
-                    Quero criar meu perfil e aparecer na plataforma.
-                  </small>
-                </div>
+      <small>
+        Quero criar meu perfil e aparecer na plataforma.
+      </small>
+    </div>
 
-                <b>→</b>
-              </Link>
+    <b>→</b>
+  </Link>
 
-              <Link
-                href="/cadastro?tipo=cliente"
-                className="choiceCard"
-                onClick={() => setRegisterOpen(false)}
-              >
-                <span className="choiceIcon">
-                  ◉
-                </span>
+  <Link
+    href="/cadastro/cliente"
+    className="choiceCard"
+    onClick={() => setRegisterOpen(false)}
+  >
+    <span className="choiceIcon">
+      ◉
+    </span>
 
-                <div>
-                  <strong>
-                    Sou cliente
-                  </strong>
+    <div>
+      <strong>
+        Sou cliente
+      </strong>
 
-                  <small>
-                    Quero explorar perfis, favoritos e experiências.
-                  </small>
-                </div>
+      <small>
+        Quero explorar perfis, favoritos e experiências.
+      </small>
+    </div>
 
-                <b>→</b>
-              </Link>
+    <b>→</b>
+  </Link>
 
-            </div>
+</div>
           </div>
         </div>
       )}

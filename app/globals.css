@@ -2142,3 +2142,420 @@ img {
     right: 14px !important;
   }
 }
+.clientRegisterPage {
+  min-height: calc(100vh - 90px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 60px 20px;
+
+  background:
+    radial-gradient(
+      circle at 50% 10%,
+      rgba(170, 67, 42, .15),
+      transparent 35%
+    ),
+    #0b0908;
+}
+
+.clientRegisterCard {
+  width: 100%;
+  max-width: 470px;
+
+  padding: 38px;
+
+  border: 1px solid
+    rgba(255,255,255,.09);
+
+  border-radius: 28px;
+
+  background:
+    rgba(22, 17, 14, .92);
+
+  box-shadow:
+    0 30px 80px
+    rgba(0,0,0,.45);
+}
+
+.clientRegisterIntro {
+  margin-bottom: 25px;
+}
+
+.clientRegisterCard h1 {
+  margin: 0;
+
+  color: #fff8f3;
+
+  font-size: 42px;
+
+  line-height: 1;
+
+  letter-spacing: -.05em;
+}
+
+.clientRegisterCard p {
+  color: #92877e;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+.googleRegisterButton {
+  width: 100%;
+  height: 54px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  border: 1px solid
+    rgba(255,255,255,.12);
+
+  border-radius: 14px;
+
+  color: white;
+
+  background:
+    rgba(255,255,255,.05);
+
+  font-weight: 700;
+}
+
+.googleRegisterButton:hover {
+  background:
+    rgba(255,255,255,.08);
+}
+
+.googleIcon {
+  width: 26px;
+  height: 26px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: white;
+
+  color: #333;
+
+  font-weight: 900;
+}
+
+.registerDivider {
+  margin: 25px 0;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 12px;
+
+  color: #71675f;
+}
+
+.registerDivider span {
+  height: 1px;
+
+  background:
+    rgba(255,255,255,.08);
+}
+
+.clientRegisterForm {
+  display: flex;
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+.clientRegisterForm label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  color: #bcb2aa;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.clientRegisterForm input {
+  width: 100%;
+  height: 52px;
+
+  padding: 0 16px;
+
+  outline: none;
+
+  border: 1px solid
+    rgba(255,255,255,.10);
+
+  border-radius: 13px;
+
+  color: white;
+
+  background:
+    rgba(255,255,255,.035);
+
+  transition: .2s;
+}
+
+.clientRegisterForm input:focus {
+  border-color:
+    rgba(224,149,102,.55);
+
+  background:
+    rgba(255,255,255,.05);
+}
+
+.clientRegisterForm input:disabled {
+  opacity: .6;
+}
+
+.clientRegisterSubmit {
+  width: 100%;
+  height: 54px;
+
+  margin-top: 5px;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  color: #160b07;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8a26f,
+      #b85e39
+    );
+
+  font-weight: 900;
+}
+
+.registerMessage {
+  margin-top: 18px;
+
+  padding: 13px 15px;
+
+  border: 1px solid
+    rgba(224,149,102,.18);
+
+  border-radius: 12px;
+
+  color: #d8c9be;
+
+  background:
+    rgba(196,111,67,.07);
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+.registerTerms {
+  margin:
+    20px auto 0 !important;
+
+  max-width: 330px;
+
+  text-align: center;
+
+  color: #655d57 !important;
+
+  font-size: 10px !important;
+}
+.registerTwoColumns {
+  display: grid;
+  grid-template-columns: 1fr 105px;
+  gap: 12px;
+}
+
+.clientRegisterForm select {
+  width: 100%;
+  height: 52px;
+
+  padding: 0 14px;
+
+  outline: none;
+
+  border: 1px solid
+    rgba(255,255,255,.10);
+
+  border-radius: 13px;
+
+  color: white;
+
+  background: #171310;
+}
+
+.ageConfirmation {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+
+  gap: 10px !important;
+
+  cursor: pointer;
+}
+
+.ageConfirmation input {
+  width: 17px !important;
+  height: 17px !important;
+
+  flex: 0 0 17px;
+
+  accent-color: #d97950;
+}
+
+.ageConfirmation span {
+  color: #92877e;
+
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.registerTerms a {
+  color: #e09566;
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  .registerTwoColumns {
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================================
+   LOGIN AIFOD
+========================================= */
+
+.loginOptions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -5px;
+}
+
+.loginOptions a {
+  color: #bba99d;
+  font-size: 11px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.loginOptions a:hover {
+  color: #e09566;
+}
+
+.loginRegisterArea {
+  margin-top: 26px;
+  padding-top: 22px;
+
+  border-top:
+    1px solid rgba(255,255,255,.07);
+}
+
+.loginRegisterArea > p {
+  margin: 0 0 13px !important;
+
+  text-align: center;
+
+  color: #71675f !important;
+
+  font-size: 11px !important;
+}
+
+.loginRegisterChoices {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.loginRegisterChoice {
+  width: 100%;
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 15px;
+
+  border:
+    1px solid rgba(255,255,255,.08);
+
+  border-radius: 12px;
+
+  color: #bdb2aa;
+
+  background:
+    rgba(255,255,255,.025);
+
+  text-align: center;
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  transition: .2s;
+}
+
+.loginRegisterChoice:hover {
+  color: #f4ddd0;
+
+  border-color:
+    rgba(224,149,102,.25);
+
+  background:
+    rgba(196,111,67,.07);
+}
+
+.loginChecking {
+  min-height: 170px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 15px;
+}
+
+.loginChecking p {
+  margin: 0 !important;
+
+  color: #8d8178 !important;
+
+  font-size: 12px !important;
+}
+
+.loginLoader {
+  width: 27px;
+  height: 27px;
+
+  border:
+    2px solid rgba(255,255,255,.08);
+
+  border-top-color:
+    #d78558;
+
+  border-radius: 50%;
+
+  animation:
+    aifodLoginSpin .7s linear infinite;
+}
+
+@keyframes aifodLoginSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

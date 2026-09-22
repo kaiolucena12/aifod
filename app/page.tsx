@@ -179,26 +179,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FECHAMENTO */}
-      <section className="homeFinalCta">
-        <div className="container homeFinalCtaInner">
-          <span className="eyebrow">
-            SUA PRÓXIMA EXPERIÊNCIA
-          </span>
-
-          <h2>
-            Talvez o que você procura
-            <em> esteja a um clique de distância.</em>
-          </h2>
-
-          <Link
-            href="/profissionais"
-            className="heroButton"
-          >
-            Explorar perfis <b>↗</b>
-          </Link>
-        </div>
-      </section>
     </>
   );
 }

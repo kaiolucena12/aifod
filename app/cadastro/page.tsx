@@ -1,1 +1,0 @@
-export default function Page(){return <section className="placeholder"><span className="eyebrow">CADASTRO</span><h1>Crie seu perfil</h1><p>Fluxo de acompanhante e cliente será detalhado na próxima etapa.</p></section>}
