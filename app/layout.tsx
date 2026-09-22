@@ -2,23 +2,30 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover"
-};
-
 export const metadata: Metadata = {
-  title: "AiFod | Experiências e companhia social",
-  description: "Protótipo premium de marketplace de companhia social e experiências legais."
+  title: "AiFod",
+  description: "AiFod - experiências, conexão e exclusividade",
+
+  icons: {
+    icon: "/image/logo.png",
+    shortcut: "/image/logo.png",
+    apple: "/image/logo.png",
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR">
       <body>
         <Header />
-        <main>{children}</main>
+
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   );
