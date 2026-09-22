@@ -1,12 +1,15 @@
 import Link from "next/link";
 import FeaturedStories from "@/components/FeaturedStories";
+import ExperienceCards from "@/components/ExperienceCards";
 
 export default function Home() {
   return (
     <>
       <FeaturedStories />
 
-      {/* HERO */}
+      {/* ========================================
+          HERO
+      ======================================== */}
       <section className="hero premiumHero">
         <div className="heroGlow heroGlowLeft" />
         <div className="heroGlow heroGlowRight" />
@@ -33,12 +36,13 @@ export default function Home() {
                 href="/profissionais"
                 className="heroButton"
               >
-                Descobrir quem está por perto <b>↗</b>
+                Descobrir quem está por perto
+                <b>↗</b>
               </Link>
             </div>
           </div>
 
-          {/* IMAGEM HERO */}
+          {/* IMAGEM */}
           <div className="premiumHeroVisual">
             <div className="heroImageFrame">
               <img
@@ -49,7 +53,7 @@ export default function Home() {
 
               <div className="heroImageOverlay" />
 
-              {/* SELO PREMIUM */}
+              {/* SELO */}
               <div className="heroImageBadge heroImageBadgeTop">
                 <span>✦</span>
 
@@ -63,7 +67,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CATEGORIAS */}
+      {/* ========================================
+          CATEGORIAS
+      ======================================== */}
       <section className="categoriesSection">
         <div className="container">
           <div className="sectionIntro">
@@ -74,111 +80,23 @@ export default function Home() {
             <h2>
               Três níveis.
               <br />
-              <em>Uma experiência para cada desejo.</em>
+
+              <em>
+                Uma experiência para cada desejo.
+              </em>
             </h2>
 
             <p className="sectionIntroText">
-              Do mais descomplicado ao mais exclusivo, encontre o estilo que
-              combina com o momento que você quer viver.
+              Do mais descomplicado ao mais exclusivo,
+              encontre o estilo que combina com o momento
+              que você quer viver.
             </p>
           </div>
 
-          <div className="categoryGrid">
-            {/* X */}
-            <Link
-              href="/profissionais?plano=x"
-              className="categoryCard xCard"
-            >
-              <div className="cardTop">
-                <span>01</span>
-                <small>DESCOMPLICADO</small>
-              </div>
-
-              <div className="categoryMain">
-                <span className="categoryMiniTitle">
-                  COMEÇAR
-                </span>
-
-                <h3>X</h3>
-
-                <p>
-                  Perfis para quem busca algo mais leve, acessível e direto.
-                  Uma forma simples de descobrir novas conexões e viver novas
-                  experiências.
-                </p>
-              </div>
-
-              <div className="cardBottom">
-                <span>Conhecer X</span>
-                <b>→</b>
-              </div>
-            </Link>
-
-            {/* COMFORT */}
-            <Link
-              href="/profissionais?plano=comfort"
-              className="categoryCard comfortCard"
-            >
-              <div className="cardTop">
-                <span>02</span>
-                <small>DESEJADO</small>
-              </div>
-
-              <div className="categoryMain">
-                <span className="categoryMiniTitle">
-                  MAIS PRESENÇA
-                </span>
-
-                <h3>Comfort</h3>
-
-                <p>
-                  Uma seleção mais refinada, com perfis de maior destaque,
-                  presença marcante e uma experiência pensada para quem quer
-                  algo além do comum.
-                </p>
-              </div>
-
-              <div className="cardBottom">
-                <span>Descobrir Comfort</span>
-                <b>→</b>
-              </div>
-            </Link>
-
-            {/* BLACK */}
-            <Link
-              href="/profissionais?plano=black"
-              className="categoryCard blackCard"
-            >
-              <div className="shine" />
-
-              <div className="cardTop">
-                <span>03</span>
-                <small>EXCLUSIVO</small>
-              </div>
-
-              <div className="categoryMain">
-                <span className="categoryMiniTitle blackMiniTitle">
-                  EXPERIÊNCIA PREMIUM
-                </span>
-
-                <h3>Black</h3>
-
-                <p>
-                  O nível mais exclusivo do AiFod. Perfis premium, seleção
-                  criteriosa e uma experiência criada para quem não procura
-                  apenas mais, mas algo realmente extraordinário.
-                </p>
-              </div>
-
-              <div className="cardBottom">
-                <span>Acessar Black</span>
-                <b>→</b>
-              </div>
-            </Link>
-          </div>
+          {/* CARDS + MODAL DE LOCALIZAÇÃO */}
+          <ExperienceCards />
         </div>
       </section>
-
     </>
   );
 }

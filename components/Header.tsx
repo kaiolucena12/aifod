@@ -53,11 +53,11 @@ export default function Header() {
           <div className="headerActions">
 
             <Link
-              href="/profissionais"
-              className="ghostButton"
-            >
-              Entrar
-            </Link>
+  href="/login"
+  className="ghostButton"
+>
+  Entrar
+</Link>
 
             <button
               type="button"

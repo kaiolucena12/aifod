@@ -11,15 +11,23 @@ export default function CadastroAcompanhantePage() {
   const [nomeArtistico, setNomeArtistico] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
+
+  const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [maiorDeIdade, setMaiorDeIdade] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [maiorDeIdade, setMaiorDeIdade] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
 
   function formatCPF(value: string) {
     const numbers = value
@@ -29,7 +37,10 @@ export default function CadastroAcompanhantePage() {
     return numbers
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      .replace(
+        /(\d{3})(\d{1,2})$/,
+        "$1-$2"
+      );
   }
 
   function formatTelefone(value: string) {
@@ -38,8 +49,14 @@ export default function CadastroAcompanhantePage() {
       .slice(0, 11);
 
     return numbers
-      .replace(/^(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{5})(\d)/, "$1-$2");
+      .replace(
+        /^(\d{2})(\d)/,
+        "($1) $2"
+      )
+      .replace(
+        /(\d{5})(\d)/,
+        "$1-$2"
+      );
   }
 
   async function cadastrarAcompanhante(
@@ -49,41 +66,69 @@ export default function CadastroAcompanhantePage() {
 
     setMessage("");
 
-    const cpfLimpo = cpf.replace(/\D/g, "");
-    const telefoneLimpo = telefone.replace(/\D/g, "");
+    const cpfLimpo =
+      cpf.replace(/\D/g, "");
+
+    const telefoneLimpo =
+      telefone.replace(/\D/g, "");
+
+    /* =========================
+       VALIDAÇÕES
+    ========================= */
 
     if (!nome.trim()) {
-      setMessage("Informe seu nome completo.");
+      setMessage(
+        "Informe seu nome completo."
+      );
       return;
     }
 
     if (!nomeArtistico.trim()) {
-      setMessage("Informe seu nome de exibição.");
+      setMessage(
+        "Informe seu nome de exibição."
+      );
       return;
     }
 
     if (cpfLimpo.length !== 11) {
-      setMessage("Informe um CPF válido.");
+      setMessage(
+        "Informe um CPF válido."
+      );
       return;
     }
 
     if (telefoneLimpo.length < 10) {
-      setMessage("Informe um telefone válido.");
+      setMessage(
+        "Informe um telefone válido."
+      );
+      return;
+    }
+
+    if (!bairro.trim()) {
+      setMessage(
+        "Informe seu bairro."
+      );
       return;
     }
 
     if (!cidade.trim()) {
-      setMessage("Informe sua cidade.");
+      setMessage(
+        "Informe sua cidade."
+      );
       return;
     }
 
     if (!estado) {
-      setMessage("Informe seu estado.");
+      setMessage(
+        "Informe seu estado."
+      );
       return;
     }
 
     if (!email.trim()) {
-      setMessage("Informe seu e-mail.");
+      setMessage(
+        "Informe seu e-mail."
+      );
       return;
     }
 
@@ -95,7 +140,9 @@ export default function CadastroAcompanhantePage() {
     }
 
     if (senha !== confirmarSenha) {
-      setMessage("As senhas não são iguais.");
+      setMessage(
+        "As senhas não são iguais."
+      );
       return;
     }
 
@@ -108,30 +155,46 @@ export default function CadastroAcompanhantePage() {
 
     setLoading(true);
 
+    /* =========================
+       CALLBACK APÓS CONFIRMAR EMAIL
+    ========================= */
+
     const redirectTo =
       `${window.location.origin}` +
-      `/auth/callback?next=/login/acompanhante`;
+      `/auth/callback?next=/login`;
+
+    /* =========================
+       CRIAR USUÁRIO
+    ========================= */
 
     const { data, error } =
       await supabase.auth.signUp({
         email: email.trim(),
+
         password: senha,
 
         options: {
-          emailRedirectTo: redirectTo,
+          emailRedirectTo:
+            redirectTo,
 
           data: {
-            role: "acompanhante",
+            role:
+              "acompanhante",
 
-            full_name: nome.trim(),
+            full_name:
+              nome.trim(),
 
             nome_artistico:
               nomeArtistico.trim(),
 
-            cpf: cpfLimpo,
+            cpf:
+              cpfLimpo,
 
             telefone:
               telefoneLimpo,
+
+            bairro:
+              bairro.trim(),
 
             cidade:
               cidade.trim(),
@@ -141,33 +204,62 @@ export default function CadastroAcompanhantePage() {
         },
       });
 
-    if (error) {
-      console.error(error);
+    /* =========================
+       ERRO
+    ========================= */
 
-      setMessage(
-        error.message ||
-          "Não foi possível criar sua conta."
+    if (error) {
+      console.error(
+        "Erro cadastro:",
+        error
       );
 
+      const errorMessage =
+        error.message.toLowerCase();
+
+      if (
+        errorMessage.includes(
+          "already"
+        ) ||
+        errorMessage.includes(
+          "registered"
+        )
+      ) {
+        setMessage(
+          "Este e-mail já possui cadastro."
+        );
+      } else {
+        setMessage(
+          error.message ||
+            "Não foi possível criar sua conta."
+        );
+      }
+
       setLoading(false);
+
       return;
     }
 
-    /*
-      Se a confirmação de e-mail estiver
-      desativada no Supabase, já haverá sessão.
-    */
+    console.log(
+      "Acompanhante criada:",
+      data.user?.id
+    );
+
+    /* =========================
+       SEM CONFIRMAÇÃO DE EMAIL
+    ========================= */
+
     if (data.session) {
       window.location.href =
-        "/login/acompanhante";
+        "/login";
 
       return;
     }
 
-    /*
-      Se confirmação de e-mail estiver ativa,
-      o usuário precisa confirmar primeiro.
-    */
+    /* =========================
+       COM CONFIRMAÇÃO DE EMAIL
+    ========================= */
+
     setMessage(
       "Cadastro realizado com sucesso. Confira seu e-mail para confirmar sua conta."
     );
@@ -178,6 +270,9 @@ export default function CadastroAcompanhantePage() {
   return (
     <main className="clientRegisterPage">
       <section className="clientRegisterCard">
+
+        {/* CABEÇALHO */}
+
         <div className="clientRegisterIntro">
           <span className="eyebrow">
             CADASTRO DE ACOMPANHANTE
@@ -188,16 +283,22 @@ export default function CadastroAcompanhantePage() {
           </h1>
 
           <p>
-            Comece seu cadastro para criar sua
-            presença dentro do AiFod.
+            Comece seu cadastro para criar
+            sua presença dentro do AiFod.
           </p>
         </div>
 
+        {/* FORMULÁRIO */}
+
         <form
           className="clientRegisterForm"
-          onSubmit={cadastrarAcompanhante}
+          onSubmit={
+            cadastrarAcompanhante
+          }
         >
+
           {/* NOME */}
+
           <label>
             Nome completo
 
@@ -206,14 +307,17 @@ export default function CadastroAcompanhantePage() {
               placeholder="Seu nome completo"
               value={nome}
               onChange={(e) =>
-                setNome(e.target.value)
+                setNome(
+                  e.target.value
+                )
               }
               autoComplete="name"
               required
             />
           </label>
 
-          {/* NOME ARTÍSTICO */}
+          {/* NOME DE EXIBIÇÃO */}
+
           <label>
             Nome de exibição
 
@@ -231,6 +335,7 @@ export default function CadastroAcompanhantePage() {
           </label>
 
           {/* CPF */}
+
           <label>
             CPF
 
@@ -252,6 +357,7 @@ export default function CadastroAcompanhantePage() {
           </label>
 
           {/* TELEFONE */}
+
           <label>
             Telefone
 
@@ -271,14 +377,34 @@ export default function CadastroAcompanhantePage() {
             />
           </label>
 
-          {/* CIDADE E ESTADO */}
+          {/* BAIRRO */}
+
+          <label>
+            Bairro
+
+            <input
+              type="text"
+              placeholder="Ex.: Piedade"
+              value={bairro}
+              onChange={(e) =>
+                setBairro(
+                  e.target.value
+                )
+              }
+              required
+            />
+          </label>
+
+          {/* CIDADE + ESTADO */}
+
           <div className="registerTwoColumns">
+
             <label>
               Cidade
 
               <input
                 type="text"
-                placeholder="Recife"
+                placeholder="Ex.: Jaboatão dos Guararapes"
                 value={cidade}
                 onChange={(e) =>
                   setCidade(
@@ -333,10 +459,12 @@ export default function CadastroAcompanhantePage() {
                 <option value="SE">SE</option>
                 <option value="TO">TO</option>
               </select>
+
             </label>
           </div>
 
           {/* EMAIL */}
+
           <label>
             E-mail
 
@@ -355,6 +483,7 @@ export default function CadastroAcompanhantePage() {
           </label>
 
           {/* SENHA */}
+
           <label>
             Senha
 
@@ -374,6 +503,7 @@ export default function CadastroAcompanhantePage() {
           </label>
 
           {/* CONFIRMAR SENHA */}
+
           <label>
             Confirmar senha
 
@@ -393,10 +523,13 @@ export default function CadastroAcompanhantePage() {
           </label>
 
           {/* 18+ */}
+
           <label className="ageConfirmation">
             <input
               type="checkbox"
-              checked={maiorDeIdade}
+              checked={
+                maiorDeIdade
+              }
               onChange={(e) =>
                 setMaiorDeIdade(
                   e.target.checked
@@ -406,11 +539,13 @@ export default function CadastroAcompanhantePage() {
             />
 
             <span>
-              Confirmo que tenho 18 anos ou mais.
+              Confirmo que tenho 18 anos
+              ou mais.
             </span>
           </label>
 
           {/* BOTÃO */}
+
           <button
             type="submit"
             className="clientRegisterSubmit"
@@ -420,9 +555,11 @@ export default function CadastroAcompanhantePage() {
               ? "Criando perfil..."
               : "Criar meu perfil"}
           </button>
+
         </form>
 
         {/* MENSAGEM */}
+
         {message && (
           <div className="registerMessage">
             {message}
@@ -430,13 +567,15 @@ export default function CadastroAcompanhantePage() {
         )}
 
         {/* LOGIN */}
+
         <p className="registerTerms">
           Já possui conta?{" "}
 
-          <Link href="/login/acompanhante">
+          <Link href="/login">
             Entrar
           </Link>
         </p>
+
       </section>
     </main>
   );
