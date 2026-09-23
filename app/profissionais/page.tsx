@@ -1,17 +1,21 @@
 "use client";
 
 import {
+  Suspense,
   useEffect,
   useState,
 } from "react";
 
 import Link from "next/link";
+
 import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/client";
+import {
+  createClient,
+} from "@/lib/supabase/client";
 
 
 type Profissional = {
@@ -27,34 +31,59 @@ type Profissional = {
 };
 
 
-export default function ProfissionaisPage() {
+function ProfissionaisContent() {
 
   const router = useRouter();
-  const searchParams = useSearchParams();
+
+  const searchParams =
+    useSearchParams();
+
 
   const plano =
-    searchParams.get("plano") || "x";
+    searchParams.get("plano") ||
+    "x";
+
 
   const cidade =
     searchParams.get("cidade");
+
 
   const bairro =
     searchParams.get("bairro");
 
 
-  const [profissionais, setProfissionais] =
+  const [
+    profissionais,
+    setProfissionais,
+  ] =
     useState<Profissional[]>([]);
 
-  const [indice, setIndice] =
+
+  const [
+    indice,
+    setIndice,
+  ] =
     useState(0);
 
-  const [loading, setLoading] =
+
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true);
 
-  const [message, setMessage] =
+
+  const [
+    message,
+    setMessage,
+  ] =
     useState("");
 
-  const [animacao, setAnimacao] =
+
+  const [
+    animacao,
+    setAnimacao,
+  ] =
     useState<
       "like" |
       "dislike" |
@@ -68,6 +97,7 @@ export default function ProfissionaisPage() {
 
       const supabase =
         createClient();
+
 
       let query =
         supabase
@@ -102,6 +132,7 @@ export default function ProfissionaisPage() {
             "cidade",
             cidade
           );
+
       }
 
 
@@ -112,6 +143,7 @@ export default function ProfissionaisPage() {
             "bairro",
             bairro
           );
+
       }
 
 
@@ -131,13 +163,16 @@ export default function ProfissionaisPage() {
 
         console.error(error);
 
+
         setMessage(
           "Não foi possível carregar os perfis."
         );
 
+
         setLoading(false);
 
         return;
+
       }
 
 
@@ -145,9 +180,11 @@ export default function ProfissionaisPage() {
         data || []
       );
 
+
       setIndice(0);
 
       setLoading(false);
+
     }
 
 
@@ -172,19 +209,22 @@ export default function ProfissionaisPage() {
 
     setAnimacao(tipo);
 
+
     window.setTimeout(
       () => {
 
         setIndice(
-          (atual) =>
-            atual + 1
+          (valor) =>
+            valor + 1
         );
+
 
         setAnimacao(null);
 
       },
       280
     );
+
   }
 
 
@@ -193,13 +233,16 @@ export default function ProfissionaisPage() {
     proximo(
       "dislike"
     );
+
   }
 
 
   async function curtir() {
 
     if (!atual) {
+
       return;
+
     }
 
 
@@ -208,7 +251,9 @@ export default function ProfissionaisPage() {
 
 
     const {
-      data: { user },
+      data: {
+        user,
+      },
     } =
       await supabase.auth.getUser();
 
@@ -220,6 +265,7 @@ export default function ProfissionaisPage() {
       );
 
       return;
+
     }
 
 
@@ -246,6 +292,7 @@ export default function ProfissionaisPage() {
       );
 
       return;
+
     }
 
 
@@ -253,7 +300,9 @@ export default function ProfissionaisPage() {
       error,
     } =
       await supabase
-        .from("interesses")
+        .from(
+          "interesses"
+        )
         .upsert(
           {
             cliente_id:
@@ -280,22 +329,28 @@ export default function ProfissionaisPage() {
 
       console.error(error);
 
+
       setMessage(
         "Não foi possível registrar seu interesse."
       );
 
       return;
+
     }
 
 
     setMessage(
-      `Interesse enviado para ${atual.nome_artistico || "este perfil"}.`
+      `Interesse enviado para ${
+        atual.nome_artistico ||
+        "este perfil"
+      }.`
     );
 
 
     proximo(
       "like"
     );
+
   }
 
 
@@ -305,17 +360,24 @@ export default function ProfissionaisPage() {
       plano ===
       "comfort"
     ) {
+
       return "Comfort";
+
     }
+
 
     if (
       plano ===
       "black"
     ) {
+
       return "Black";
+
     }
 
+
     return "X";
+
   }
 
 
@@ -338,6 +400,7 @@ export default function ProfissionaisPage() {
 
       </main>
     );
+
   }
 
 
@@ -345,6 +408,7 @@ export default function ProfissionaisPage() {
     <main className="discoveryPage">
 
       <div className="discoveryContainer">
+
 
         {/* CABEÇALHO */}
 
@@ -356,9 +420,13 @@ export default function ProfissionaisPage() {
               {nomePlano()}
             </span>
 
+
             <h1>
               Descubra quem
-              <em> desperta seu interesse.</em>
+              <em>
+                {" "}
+                desperta seu interesse.
+              </em>
             </h1>
 
           </div>
@@ -367,15 +435,20 @@ export default function ProfissionaisPage() {
           <div className="discoveryLocation">
 
             {cidade && (
+
               <strong>
                 {cidade}
               </strong>
+
             )}
 
+
             {bairro && (
+
               <span>
                 {bairro}
               </span>
+
             )}
 
           </div>
@@ -404,20 +477,23 @@ export default function ProfissionaisPage() {
               ✦
             </span>
 
+
             <h2>
               Você chegou ao fim
             </h2>
+
 
             <p>
               Não há mais perfis disponíveis
               nesta seleção por enquanto.
             </p>
 
+
             <Link
-              href="/"
+              href="/cliente"
               className="heroButton"
             >
-              Explorar outras opções
+              Voltar às opções
             </Link>
 
           </section>
@@ -426,25 +502,25 @@ export default function ProfissionaisPage() {
 
           <div className="discoveryDeck">
 
+
             {/* CARD */}
 
             <article
               className={`
                 discoveryCard
                 ${
-                  animacao ===
-                  "like"
+                  animacao === "like"
                     ? "discoveryLike"
                     : ""
                 }
                 ${
-                  animacao ===
-                  "dislike"
+                  animacao === "dislike"
                     ? "discoveryDislike"
                     : ""
                 }
               `}
             >
+
 
               <Link
                 href={`/perfil/${atual.id}`}
@@ -452,6 +528,7 @@ export default function ProfissionaisPage() {
               >
 
                 <div className="discoveryPhoto">
+
 
                   {atual.foto_capa ? (
 
@@ -468,6 +545,7 @@ export default function ProfissionaisPage() {
                   ) : (
 
                     <div className="discoveryPhotoPlaceholder">
+
                       <span>
                         ✦
                       </span>
@@ -475,6 +553,7 @@ export default function ProfissionaisPage() {
                       <small>
                         Foto em breve
                       </small>
+
                     </div>
 
                   )}
@@ -486,7 +565,9 @@ export default function ProfissionaisPage() {
                   {/* PLANO */}
 
                   <span
-                    className={`discoveryPlan discoveryPlan-${plano}`}
+                    className={
+                      `discoveryPlan discoveryPlan-${plano}`
+                    }
                   >
                     {nomePlano()}
                   </span>
@@ -499,36 +580,48 @@ export default function ProfissionaisPage() {
                     <div>
 
                       <h2>
+
                         {atual.nome_artistico ||
                           "Perfil"}
-                        
+
+
                         {atual.idade && (
+
                           <small>
                             {" "}
                             {atual.idade}
                           </small>
+
                         )}
+
                       </h2>
 
 
                       <p>
+
                         {atual.bairro &&
                           `${atual.bairro} • `}
 
+
                         {atual.cidade}
+
 
                         {atual.estado &&
                           `, ${atual.estado}`}
+
                       </p>
 
                     </div>
 
 
                     <span className="discoveryOpen">
+
                       Ver perfil
+
                       <b>
                         ↗
                       </b>
+
                     </span>
 
                   </div>
@@ -597,4 +690,48 @@ export default function ProfissionaisPage() {
 
     </main>
   );
+
+}
+
+
+/*
+  COMPONENTE PRINCIPAL
+
+  O useSearchParams está dentro
+  do ProfissionaisContent.
+
+  Por isso ele precisa ficar
+  dentro do Suspense.
+*/
+
+export default function ProfissionaisPage() {
+
+  return (
+
+    <Suspense
+      fallback={
+        <main className="discoveryPage">
+
+          <div className="discoveryLoading">
+
+            <span
+              className="loginLoader"
+            />
+
+            <p>
+              Buscando perfis...
+            </p>
+
+          </div>
+
+        </main>
+      }
+    >
+
+      <ProfissionaisContent />
+
+    </Suspense>
+
+  );
+
 }
