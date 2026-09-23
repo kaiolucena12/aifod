@@ -28,6 +28,7 @@ type Profissional = {
   plano: string | null;
   descricao_curta: string | null;
   foto_capa: string | null;
+  preco_hora_centavos: number | null;
 };
 
 
@@ -107,7 +108,8 @@ function ProfissionaisContent() {
             estado,
             plano,
             descricao_curta,
-            foto_capa
+            foto_capa,
+            preco_hora_centavos
           `)
           .eq(
             "status",
@@ -348,6 +350,29 @@ function ProfissionaisContent() {
       border-white/15
       text-white
     `;
+  }
+
+
+  function formatarPreco(
+    valor: number | null
+  ) {
+    if (
+      valor === null ||
+      valor === undefined ||
+      valor <= 0
+    ) {
+      return "Valor a combinar";
+    }
+
+    return new Intl.NumberFormat(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+      }
+    ).format(
+      valor / 100
+    );
   }
 
 
@@ -832,6 +857,58 @@ function ProfissionaisContent() {
                   </span>
 
 
+                  {/* PREÇO JÁ VISÍVEL NO CARD */}
+
+                  <div
+                    className="
+                      absolute
+                      right-5
+                      top-5
+                      z-20
+                      rounded-full
+                      border
+                      border-[#d2a86b]/35
+                      bg-black/70
+                      px-4
+                      py-2.5
+                      text-right
+                      backdrop-blur-xl
+                      shadow-[0_8px_24px_rgba(0,0,0,0.35)]
+                    "
+                  >
+                    <strong
+                      className="
+                        block
+                        text-[14px]
+                        font-black
+                        leading-none
+                        text-[#f0cf91]
+                      "
+                    >
+                      {formatarPreco(
+                        atual.preco_hora_centavos
+                      )}
+                    </strong>
+
+                    {atual.preco_hora_centavos &&
+                      atual.preco_hora_centavos > 0 && (
+                        <small
+                          className="
+                            mt-1
+                            block
+                            text-[7px]
+                            font-bold
+                            uppercase
+                            tracking-[0.12em]
+                            text-white/45
+                          "
+                        >
+                          por hora
+                        </small>
+                      )}
+                  </div>
+
+
                   {/* INFORMAÇÕES */}
 
                   <div
@@ -892,6 +969,35 @@ function ProfissionaisContent() {
                         {atual.estado &&
                           `, ${atual.estado}`}
                       </p>
+
+                      <strong
+                        className="
+                          mt-3
+                          block
+                          text-[16px]
+                          font-semibold
+                          tracking-[-0.02em]
+                          text-[#f0cf91]
+                        "
+                      >
+                        {formatarPreco(
+                          atual.preco_hora_centavos
+                        )}
+
+                        {atual.preco_hora_centavos &&
+                          atual.preco_hora_centavos > 0 && (
+                            <span
+                              className="
+                                ml-1
+                                text-[9px]
+                                font-medium
+                                text-white/45
+                              "
+                            >
+                              / hora
+                            </span>
+                          )}
+                      </strong>
                     </div>
 
 

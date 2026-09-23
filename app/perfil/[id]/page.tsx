@@ -29,6 +29,7 @@ type Perfil = {
   sobre: string | null;
   disponibilidade: string | null;
   foto_capa: string | null;
+  preco_hora_centavos: number | null;
 };
 
 
@@ -135,7 +136,8 @@ export default function PerfilPublicoPage() {
             descricao_curta,
             sobre,
             disponibilidade,
-            foto_capa
+            foto_capa,
+            preco_hora_centavos
           `)
           .eq(
             "id",
@@ -428,6 +430,29 @@ export default function PerfilPublicoPage() {
       text-white/80
     `;
 
+  }
+
+
+  function formatarPreco(
+    valor: number | null
+  ) {
+    if (
+      valor === null ||
+      valor === undefined ||
+      valor <= 0
+    ) {
+      return "Valor a combinar";
+    }
+
+    return new Intl.NumberFormat(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+      }
+    ).format(
+      valor / 100
+    );
   }
 
 
@@ -984,6 +1009,71 @@ export default function PerfilPublicoPage() {
             </div>
 
 
+            {/* VALOR POR HORA */}
+
+            <div
+              className="
+                mt-6
+                flex
+                items-end
+                justify-between
+                gap-5
+                rounded-[22px]
+                border
+                border-[#d2a86b]/20
+                bg-[linear-gradient(135deg,rgba(210,168,107,0.09),rgba(196,111,67,0.035))]
+                px-5
+                py-4
+              "
+            >
+              <div>
+                <small
+                  className="
+                    block
+                    text-[8px]
+                    font-black
+                    uppercase
+                    tracking-[0.18em]
+                    text-white/30
+                  "
+                >
+                  VALOR POR HORA
+                </small>
+
+                <strong
+                  className="
+                    mt-2
+                    block
+                    text-[28px]
+                    font-semibold
+                    tracking-[-0.04em]
+                    text-[#e8c986]
+                  "
+                >
+                  {formatarPreco(
+                    perfil.preco_hora_centavos
+                  )}
+                </strong>
+              </div>
+
+              {perfil.preco_hora_centavos &&
+                perfil.preco_hora_centavos > 0 && (
+                  <span
+                    className="
+                      pb-1
+                      text-[9px]
+                      font-bold
+                      uppercase
+                      tracking-[0.12em]
+                      text-white/25
+                    "
+                  >
+                    POR HORA
+                  </span>
+                )}
+            </div>
+
+
             {/* DESCRIÇÃO */}
 
             {perfil.descricao_curta && (
@@ -1168,9 +1258,9 @@ export default function PerfilPublicoPage() {
                 grid
                 grid-cols-1
                 gap-3
-                sm:grid-cols-3
+                sm:grid-cols-2
                 lg:grid-cols-1
-                xl:grid-cols-3
+                xl:grid-cols-4
               "
             >
 
@@ -1249,6 +1339,47 @@ export default function PerfilPublicoPage() {
                   {perfil.bairro ||
                     perfil.cidade ||
                     "Não informado"}
+                </strong>
+
+              </article>
+
+
+              {/* VALOR */}
+
+              <article
+                className="
+                  rounded-2xl
+                  border
+                  border-[#d2a86b]/15
+                  bg-[#d2a86b]/[0.035]
+                  p-4
+                "
+              >
+
+                <small
+                  className="
+                    text-[7px]
+                    font-black
+                    uppercase
+                    tracking-[0.16em]
+                    text-white/25
+                  "
+                >
+                  VALOR / HORA
+                </small>
+
+
+                <strong
+                  className="
+                    mt-2
+                    block
+                    text-sm
+                    text-[#e8c986]
+                  "
+                >
+                  {formatarPreco(
+                    perfil.preco_hora_centavos
+                  )}
                 </strong>
 
               </article>

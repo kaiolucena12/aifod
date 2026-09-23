@@ -26,6 +26,7 @@ type Perfil = {
   descricao_curta: string | null;
   sobre: string | null;
   disponibilidade: string | null;
+  preco_hora_centavos: number | null;
   foto_capa: string | null;
 };
 
@@ -134,6 +135,13 @@ export default function PerfilAcompanhantePage() {
   const [
     idade,
     setIdade,
+  ] =
+    useState("");
+
+
+  const [
+    precoHora,
+    setPrecoHora,
   ] =
     useState("");
 
@@ -299,6 +307,7 @@ export default function PerfilAcompanhantePage() {
             descricao_curta,
             sobre,
             disponibilidade,
+            preco_hora_centavos,
             foto_capa
           `)
           .eq(
@@ -342,6 +351,25 @@ export default function PerfilAcompanhantePage() {
           perfil.idade
             ? String(
                 perfil.idade
+              )
+            : ""
+        );
+
+
+        setPrecoHora(
+          perfil.preco_hora_centavos !== null &&
+          perfil.preco_hora_centavos !== undefined
+            ? (
+                perfil.preco_hora_centavos /
+                100
+              ).toLocaleString(
+                "pt-BR",
+                {
+                  minimumFractionDigits:
+                    2,
+                  maximumFractionDigits:
+                    2,
+                }
               )
             : ""
         );
@@ -462,6 +490,67 @@ export default function PerfilAcompanhantePage() {
   }
 
 
+  function precoParaCentavos(
+    valor: string
+  ) {
+
+    const texto =
+      valor
+        .trim()
+        .replace(
+          /R\$/gi,
+          ""
+        )
+        .replace(
+          /\s/g,
+          ""
+        );
+
+
+    if (!texto) {
+      return null;
+    }
+
+
+    const normalizado =
+      texto.includes(",")
+        ? texto
+            .replace(
+              /\./g,
+              ""
+            )
+            .replace(
+              ",",
+              "."
+            )
+        : texto;
+
+
+    const numero =
+      Number(
+        normalizado.replace(
+          /[^0-9.]/g,
+          ""
+        )
+      );
+
+
+    if (
+      !Number.isFinite(
+        numero
+      )
+    ) {
+      return null;
+    }
+
+
+    return Math.round(
+      numero * 100
+    );
+
+  }
+
+
   /*
     SALVAR PERFIL
   */
@@ -521,6 +610,25 @@ export default function PerfilAcompanhantePage() {
     }
 
 
+    const precoHoraCentavos =
+      precoParaCentavos(
+        precoHora
+      );
+
+
+    if (
+      precoHoraCentavos === null ||
+      precoHoraCentavos <= 0
+    ) {
+
+      setErro(
+        "Informe um valor por hora válido."
+      );
+
+      return;
+    }
+
+
     setSalvando(true);
 
 
@@ -549,6 +657,9 @@ export default function PerfilAcompanhantePage() {
                   idade
                 )
               : null,
+
+          preco_hora_centavos:
+            precoHoraCentavos,
 
           bairro:
             bairro.trim(),
@@ -1908,6 +2019,101 @@ export default function PerfilAcompanhantePage() {
                   focus:border-[#e09566]/45
                 "
               />
+
+            </label>
+
+
+            {/* VALOR POR HORA */}
+
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
+                Valor por hora
+              </span>
+
+
+              <div
+                className="
+                  flex
+                  min-h-12
+                  items-center
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  transition
+                  focus-within:border-[#e09566]/45
+                "
+              >
+
+                <span
+                  className="
+                    pl-4
+                    text-sm
+                    font-bold
+                    text-[#d2a86b]
+                  "
+                >
+                  R$
+                </span>
+
+
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={
+                    precoHora
+                  }
+                  onChange={
+                    (event) =>
+                      setPrecoHora(
+                        event.target.value.replace(
+                          /[^0-9.,]/g,
+                          ""
+                        )
+                      )
+                  }
+                  placeholder="250,00"
+                  className="
+                    min-h-12
+                    w-full
+                    bg-transparent
+                    px-3
+                    text-sm
+                    text-white/85
+                    outline-none
+                    placeholder:text-white/20
+                  "
+                />
+
+              </div>
+
+
+              <small
+                className="
+                  text-[8px]
+                  leading-4
+                  text-white/25
+                "
+              >
+                Esse valor será exibido
+                no seu perfil e usado
+                no cálculo da reserva.
+              </small>
 
             </label>
 

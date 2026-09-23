@@ -29,6 +29,7 @@ type AcompanhanteResumo = {
   cidade: string | null;
   plano: string | null;
   foto_capa: string | null;
+  preco_hora_centavos: number | null;
 };
 
 
@@ -228,7 +229,8 @@ export default function ClientePage() {
               bairro,
               cidade,
               plano,
-              foto_capa
+              foto_capa,
+              preco_hora_centavos
             `)
             .in(
               "id",
@@ -329,7 +331,8 @@ export default function ClientePage() {
               bairro,
               cidade,
               plano,
-              foto_capa
+              foto_capa,
+              preco_hora_centavos
             `)
             .in(
               "id",
@@ -422,6 +425,29 @@ export default function ClientePage() {
     }
 
     return "X";
+  }
+
+
+  function formatarPreco(
+    valor: number | null
+  ) {
+    if (
+      valor === null ||
+      valor === undefined ||
+      valor <= 0
+    ) {
+      return "Valor não informado";
+    }
+
+    return new Intl.NumberFormat(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+      }
+    ).format(
+      valor / 100
+    );
   }
 
 
@@ -999,12 +1025,9 @@ export default function ClientePage() {
 
                       return (
 
-                        <Link
+                        <article
                           key={
                             match.id
-                          }
-                          href={
-                            `/perfil/${profissional.id}`
                           }
                           className="
                             overflow-hidden
@@ -1019,106 +1042,232 @@ export default function ClientePage() {
                           "
                         >
 
-                          <div
+                          <Link
+                            href={
+                              `/perfil/${profissional.id}`
+                            }
                             className="
-                              relative
-                              aspect-[4/5]
-                              overflow-hidden
-                              bg-[#17120f]
+                              block
                             "
                           >
 
-                            {profissional.foto_capa ? (
+                            <div
+                              className="
+                                relative
+                                aspect-[4/5]
+                                overflow-hidden
+                                bg-[#17120f]
+                              "
+                            >
 
-                              <img
-                                src={
-                                  profissional.foto_capa
-                                }
-                                alt={
-                                  profissional.nome_artistico ||
-                                  "Perfil"
+                              {profissional.foto_capa ? (
+
+                                <img
+                                  src={
+                                    profissional.foto_capa
+                                  }
+                                  alt={
+                                    profissional.nome_artistico ||
+                                    "Perfil"
+                                  }
+                                  className="
+                                    h-full
+                                    w-full
+                                    object-cover
+                                  "
+                                />
+
+                              ) : (
+
+                                <div
+                                  className="
+                                    grid
+                                    h-full
+                                    place-items-center
+                                    text-[#7b503c]
+                                  "
+                                >
+                                  ✦
+                                </div>
+
+                              )}
+
+
+                              <span
+                                className="
+                                  absolute
+                                  left-3
+                                  top-3
+                                  rounded-full
+                                  bg-[#e09566]
+                                  px-2.5
+                                  py-1.5
+                                  text-[7px]
+                                  font-black
+                                  tracking-[0.12em]
+                                  text-[#160b07]
+                                "
+                              >
+                                MATCH
+                              </span>
+
+                            </div>
+
+
+                            <div
+                              className="
+                                p-4
+                                pb-3
+                              "
+                            >
+
+                              <strong
+                                className="
+                                  block
+                                  text-sm
+                                  text-white/85
+                                "
+                              >
+                                {profissional.nome_artistico ||
+                                  "Perfil"}
+
+                                {profissional.idade &&
+                                  `, ${profissional.idade}`}
+                              </strong>
+
+
+                              <span
+                                className="
+                                  mt-1
+                                  block
+                                  text-[9px]
+                                  text-white/35
+                                "
+                              >
+                                {profissional.bairro ||
+                                  profissional.cidade ||
+                                  "Localização não informada"}
+                              </span>
+
+
+                              <div
+                                className="
+                                  mt-3
+                                  flex
+                                  items-end
+                                  justify-between
+                                  gap-2
+                                "
+                              >
+                                <div>
+                                  <small
+                                    className="
+                                      block
+                                      text-[7px]
+                                      font-black
+                                      uppercase
+                                      tracking-[0.12em]
+                                      text-white/20
+                                    "
+                                  >
+                                    VALOR / HORA
+                                  </small>
+
+                                  <strong
+                                    className="
+                                      mt-1
+                                      block
+                                      text-sm
+                                      text-[#e8c986]
+                                    "
+                                  >
+                                    {formatarPreco(
+                                      profissional.preco_hora_centavos
+                                    )}
+                                  </strong>
+                                </div>
+
+                                <span
+                                  className="
+                                    text-[9px]
+                                    text-[#e09566]
+                                  "
+                                >
+                                  Ver perfil ↗
+                                </span>
+                              </div>
+
+                            </div>
+
+                          </Link>
+
+
+                          <div
+                            className="
+                              border-t
+                              border-white/[0.06]
+                              p-3
+                            "
+                          >
+
+                            {profissional.preco_hora_centavos &&
+                            profissional.preco_hora_centavos > 0 ? (
+
+                              <Link
+                                href={
+                                  `/reserva/${match.id}`
                                 }
                                 className="
-                                  h-full
+                                  flex
+                                  min-h-11
                                   w-full
-                                  object-cover
+                                  items-center
+                                  justify-center
+                                  gap-2
+                                  rounded-full
+                                  bg-gradient-to-r
+                                  from-[#e09566]
+                                  to-[#c46f43]
+                                  px-4
+                                  text-[9px]
+                                  font-black
+                                  uppercase
+                                  tracking-[0.08em]
+                                  text-[#160b07]
+                                  transition
+                                  hover:-translate-y-0.5
                                 "
-                              />
+                              >
+                                Continuar
+                                <span>→</span>
+                              </Link>
 
                             ) : (
 
                               <div
                                 className="
-                                  grid
-                                  h-full
-                                  place-items-center
-                                  text-[#7b503c]
+                                  flex
+                                  min-h-11
+                                  items-center
+                                  justify-center
+                                  rounded-full
+                                  border
+                                  border-white/[0.07]
+                                  bg-white/[0.02]
+                                  px-4
+                                  text-center
+                                  text-[8px]
+                                  text-white/30
                                 "
                               >
-                                ✦
+                                Aguardando definição do valor
                               </div>
 
                             )}
 
-
-                            <span
-                              className="
-                                absolute
-                                left-3
-                                top-3
-                                rounded-full
-                                bg-[#e09566]
-                                px-2.5
-                                py-1.5
-                                text-[7px]
-                                font-black
-                                tracking-[0.12em]
-                                text-[#160b07]
-                              "
-                            >
-                              MATCH
-                            </span>
-
                           </div>
 
-
-                          <div
-                            className="
-                              p-4
-                            "
-                          >
-
-                            <strong
-                              className="
-                                block
-                                text-sm
-                                text-white/85
-                              "
-                            >
-                              {profissional.nome_artistico ||
-                                "Perfil"}
-
-                              {profissional.idade &&
-                                `, ${profissional.idade}`}
-                            </strong>
-
-
-                            <span
-                              className="
-                                mt-1
-                                block
-                                text-[9px]
-                                text-white/35
-                              "
-                            >
-                              {profissional.bairro ||
-                                profissional.cidade ||
-                                "Localização não informada"}
-                            </span>
-
-                          </div>
-
-                        </Link>
+                        </article>
 
                       );
 
