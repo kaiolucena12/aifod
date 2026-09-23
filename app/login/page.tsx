@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  const supabase = createClient();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -26,6 +25,8 @@ export default function LoginPage() {
   async function redirecionarUsuario(
     userId: string
   ) {
+    const supabase = createClient();
+
     const { data: profile, error } =
       await supabase
         .from("profiles")
@@ -51,7 +52,13 @@ export default function LoginPage() {
       return;
     }
 
-    if (profile.role === "acompanhante") {
+    /*
+      ACOMPANHANTE
+    */
+    if (
+      profile.role ===
+      "acompanhante"
+    ) {
       router.replace(
         "/acompanhante/painel"
       );
@@ -59,15 +66,34 @@ export default function LoginPage() {
       return;
     }
 
-    if (profile.role === "cliente") {
+    /*
+      CLIENTE
+
+      IMPORTANTE:
+      o cliente vai primeiro para
+      o dashboard /cliente.
+
+      Lá ele poderá escolher:
+      X, Comfort ou Black.
+    */
+    if (
+      profile.role ===
+      "cliente"
+    ) {
       router.replace(
-        "/profissionais"
+        "/cliente"
       );
 
       return;
     }
 
-    if (profile.role === "admin") {
+    /*
+      ADMIN
+    */
+    if (
+      profile.role ===
+      "admin"
+    ) {
       router.replace(
         "/admin"
       );
@@ -86,12 +112,14 @@ export default function LoginPage() {
   }
 
   /*
-    Se o usuário chegar aqui já autenticado
-    após confirmar o e-mail, encaminhamos
-    automaticamente para a área correta.
+    Verifica se o usuário
+    já está autenticado.
   */
   useEffect(() => {
     async function verificarSessao() {
+      const supabase =
+        createClient();
+
       const {
         data: { user },
       } =
@@ -135,6 +163,9 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+
+    const supabase =
+      createClient();
 
     const {
       data,
@@ -189,13 +220,17 @@ export default function LoginPage() {
     return (
       <main className="clientRegisterPage">
         <section className="clientRegisterCard">
+
           <div className="loginChecking">
+
             <span className="loginLoader" />
 
             <p>
               Verificando sua conta...
             </p>
+
           </div>
+
         </section>
       </main>
     );
@@ -203,9 +238,11 @@ export default function LoginPage() {
 
   return (
     <main className="clientRegisterPage">
+
       <section className="clientRegisterCard">
 
         <div className="clientRegisterIntro">
+
           <span className="eyebrow">
             BEM-VINDO AO AIFOD
           </span>
@@ -218,12 +255,14 @@ export default function LoginPage() {
             Acesse sua conta para continuar
             sua experiência no AiFod.
           </p>
+
         </div>
 
         <form
           className="clientRegisterForm"
           onSubmit={entrar}
         >
+
           <label>
             E-mail
 
@@ -239,6 +278,7 @@ export default function LoginPage() {
               autoComplete="email"
               required
             />
+
           </label>
 
           <label>
@@ -256,12 +296,15 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
             />
+
           </label>
 
           <div className="loginOptions">
+
             <Link href="/recuperar-senha">
               Esqueci minha senha
             </Link>
+
           </div>
 
           <button
@@ -269,10 +312,13 @@ export default function LoginPage() {
             className="clientRegisterSubmit"
             disabled={loading}
           >
+
             {loading
               ? "Entrando..."
               : "Entrar"}
+
           </button>
+
         </form>
 
         {message && (
@@ -282,11 +328,13 @@ export default function LoginPage() {
         )}
 
         <div className="loginRegisterArea">
+
           <p>
             Ainda não possui conta?
           </p>
 
           <div className="loginRegisterChoices">
+
             <Link
               href="/cadastro/cliente"
               className="loginRegisterChoice"
@@ -300,10 +348,13 @@ export default function LoginPage() {
             >
               Quero criar meu perfil
             </Link>
+
           </div>
+
         </div>
 
       </section>
+
     </main>
   );
 }

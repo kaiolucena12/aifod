@@ -1,70 +1,88 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 
-type PerfilAcompanhante = {
+
+type Acompanhante = {
   nome_artistico: string | null;
-  telefone: string | null;
-  bairro: string | null;
-  cidade: string | null;
-  estado: string | null;
   status: string | null;
   plano: string | null;
 };
 
+
+type Interesse = {
+  id: string;
+  cliente_id: string;
+  status: string;
+  created_at: string;
+};
+
+
+type Match = {
+  id: string;
+  cliente_id: string;
+  created_at: string;
+};
+
+
 export default function PainelAcompanhantePage() {
+
   const router = useRouter();
 
   const [perfil, setPerfil] =
-    useState<PerfilAcompanhante | null>(null);
+    useState<Acompanhante | null>(null);
 
-  const [email, setEmail] =
-    useState("");
+  const [interesses, setInteresses] =
+    useState<Interesse[]>([]);
+
+  const [matches, setMatches] =
+    useState<Match[]>([]);
 
   const [loading, setLoading] =
     useState(true);
 
-  const [erro, setErro] =
+  const [message, setMessage] =
     useState("");
 
+
   useEffect(() => {
-    async function carregarPainel() {
+
+    async function carregar() {
+
       const supabase =
         createClient();
 
-      /* =========================
-         VERIFICAR USUÁRIO
-      ========================= */
+
+      /* USUÁRIO */
 
       const {
         data: { user },
-        error: userError,
       } =
         await supabase.auth.getUser();
 
-      if (
-        userError ||
-        !user
-      ) {
-        router.replace("/login");
+
+      if (!user) {
+
+        router.replace(
+          "/login"
+        );
+
         return;
       }
 
-      setEmail(
-        user.email || ""
-      );
 
-      /* =========================
-         VERIFICAR ROLE
-      ========================= */
+      /* CONFERE ROLE */
 
       const {
         data: profile,
-        error: profileError,
       } =
         await supabase
           .from("profiles")
@@ -72,22 +90,13 @@ export default function PainelAcompanhantePage() {
           .eq("id", user.id)
           .single();
 
-      if (
-        profileError ||
-        !profile
-      ) {
-        setErro(
-          "Não foi possível localizar sua conta."
-        );
-
-        setLoading(false);
-        return;
-      }
 
       if (
+        !profile ||
         profile.role !==
-        "acompanhante"
+          "acompanhante"
       ) {
+
         router.replace(
           "/profissionais"
         );
@@ -95,13 +104,12 @@ export default function PainelAcompanhantePage() {
         return;
       }
 
-      /* =========================
-         BUSCAR PERFIL
-      ========================= */
+
+      /* PERFIL */
 
       const {
-        data: acompanhante,
-        error: acompanhanteError,
+        data:
+          acompanhanteData,
       } =
         await supabase
           .from(
@@ -109,153 +117,220 @@ export default function PainelAcompanhantePage() {
           )
           .select(`
             nome_artistico,
-            telefone,
-            bairro,
-            cidade,
-            estado,
             status,
             plano
           `)
           .eq("id", user.id)
           .single();
 
-      if (
-        acompanhanteError
-      ) {
-        console.log(
-          acompanhanteError
-        );
 
-        setErro(
-          "Seu cadastro existe, mas não foi possível carregar os dados do perfil."
-        );
+      if (acompanhanteData) {
 
-        setLoading(false);
-        return;
+        setPerfil(
+          acompanhanteData
+        );
       }
 
-      setPerfil(
-        acompanhante
+
+      /* INTERESSES */
+
+      const {
+        data:
+          interessesData,
+      } =
+        await supabase
+          .from("interesses")
+          .select(`
+            id,
+            cliente_id,
+            status,
+            created_at
+          `)
+          .eq(
+            "acompanhante_id",
+            user.id
+          )
+          .eq(
+            "status",
+            "pendente"
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false,
+            }
+          );
+
+
+      setInteresses(
+        interessesData || []
       );
+
+
+      /* MATCHES */
+
+      const {
+        data:
+          matchesData,
+      } =
+        await supabase
+          .from("matches")
+          .select(`
+            id,
+            cliente_id,
+            created_at
+          `)
+          .eq(
+            "acompanhante_id",
+            user.id
+          )
+          .eq(
+            "status",
+            "ativo"
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false,
+            }
+          );
+
+
+      setMatches(
+        matchesData || []
+      );
+
 
       setLoading(false);
     }
 
-    carregarPainel();
+
+    carregar();
 
   }, [router]);
 
+
+  async function responderInteresse(
+    id: string,
+    resposta:
+      | "aceito"
+      | "recusado"
+  ) {
+
+    const supabase =
+      createClient();
+
+
+    const {
+      error,
+    } =
+      await supabase
+        .from("interesses")
+        .update({
+          status:
+            resposta,
+
+          updated_at:
+            new Date()
+              .toISOString(),
+        })
+        .eq(
+          "id",
+          id
+        );
+
+
+    if (error) {
+
+      setMessage(
+        "Não foi possível atualizar o interesse."
+      );
+
+      return;
+    }
+
+
+    setInteresses(
+      (atual) =>
+        atual.filter(
+          (item) =>
+            item.id !== id
+        )
+    );
+
+
+    if (
+      resposta === "aceito"
+    ) {
+
+      setMessage(
+        "Interesse aceito. Um novo match foi criado."
+      );
+
+    } else {
+
+      setMessage(
+        "Interesse recusado."
+      );
+    }
+
+  }
+
+
   async function sair() {
+
     const supabase =
       createClient();
 
     await supabase.auth.signOut();
 
     router.replace("/");
+
     router.refresh();
   }
 
-  function nomePlano(
-    plano: string | null
-  ) {
-    if (
-      plano === "comfort"
-    ) {
-      return "Comfort";
-    }
-
-    if (
-      plano === "black"
-    ) {
-      return "Black";
-    }
-
-    return "X";
-  }
-
-  function nomeStatus(
-    status: string | null
-  ) {
-    if (
-      status === "aprovado"
-    ) {
-      return "Perfil aprovado";
-    }
-
-    if (
-      status === "rejeitado"
-    ) {
-      return "Perfil não aprovado";
-    }
-
-    if (
-      status === "suspenso"
-    ) {
-      return "Perfil suspenso";
-    }
-
-    return "Perfil em análise";
-  }
 
   if (loading) {
+
     return (
       <main className="dashboardPage">
+
         <div className="dashboardLoading">
-          <span className="loginLoader" />
+
+          <span
+            className="loginLoader"
+          />
 
           <p>
             Carregando seu painel...
           </p>
+
         </div>
+
       </main>
     );
   }
 
-  if (erro) {
-    return (
-      <main className="dashboardPage">
-        <div className="dashboardError">
-          <span className="eyebrow">
-            AIFOD
-          </span>
-
-          <h1>
-            Não foi possível carregar
-            seu perfil
-          </h1>
-
-          <p>
-            {erro}
-          </p>
-
-          <button
-            type="button"
-            className="dashboardPrimaryButton"
-            onClick={sair}
-          >
-            Sair da conta
-          </button>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="dashboardPage">
 
       <div className="dashboardContainer">
 
+
         {/* TOPO */}
 
         <div className="dashboardTop">
 
           <div>
+
             <span className="eyebrow">
-              ÁREA DA ACOMPANHANTE
+              PAINEL AIFOD
             </span>
 
             <h1>
               Olá,{" "}
+
               <em>
                 {perfil?.nome_artistico ||
                   "bem-vinda"}
@@ -263,10 +338,13 @@ export default function PainelAcompanhantePage() {
             </h1>
 
             <p>
-              Gerencie seu perfil e acompanhe
-              o status da sua conta.
+              Veja quem demonstrou interesse
+              no seu perfil e acompanhe seus
+              matches.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -279,244 +357,364 @@ export default function PainelAcompanhantePage() {
         </div>
 
 
-        {/* STATUS */}
-
-        <section className="dashboardStatusCard">
-
-          <div className="dashboardStatusIcon">
-            ✦
-          </div>
-
-          <div>
-            <small>
-              STATUS DA CONTA
-            </small>
-
-            <strong>
-              {nomeStatus(
-                perfil?.status ||
-                  null
-              )}
-            </strong>
-
-            {perfil?.status ===
-            "aprovado" ? (
-              <p>
-                Seu perfil está ativo
-                na plataforma.
-              </p>
-            ) : (
-              <p>
-                Seu cadastro está aguardando
-                análise antes de aparecer
-                publicamente.
-              </p>
-            )}
-          </div>
-
-          <span
-            className={`dashboardStatusBadge ${
-              perfil?.status ===
-              "aprovado"
-                ? "approved"
-                : "pending"
-            }`}
-          >
-            {perfil?.status ===
-            "aprovado"
-              ? "APROVADO"
-              : "PENDENTE"}
-          </span>
-
-        </section>
-
-
         {/* RESUMO */}
 
         <section className="dashboardGrid">
 
           <article className="dashboardCard">
+
             <small>
-              PERFIL
+              NOVOS INTERESSES
             </small>
 
             <h2>
-              {perfil?.nome_artistico ||
-                "Sem nome"}
+              {interesses.length}
             </h2>
 
             <p>
-              {email}
+              Pessoas aguardando
+              sua resposta.
             </p>
+
           </article>
 
 
           <article className="dashboardCard">
+
             <small>
-              CATEGORIA
+              MATCHES
             </small>
 
             <h2>
-              {nomePlano(
-                perfil?.plano ||
-                  null
-              )}
+              {matches.length}
             </h2>
 
             <p>
-              Categoria atual do seu perfil.
+              Conexões ativas.
             </p>
+
           </article>
 
 
           <article className="dashboardCard">
+
             <small>
-              LOCALIZAÇÃO
+              SEU PLANO
             </small>
 
             <h2>
-              {perfil?.bairro ||
-                "Não informado"}
+              {perfil?.plano ===
+              "black"
+                ? "Black"
+                : perfil?.plano ===
+                    "comfort"
+                  ? "Comfort"
+                  : "X"}
             </h2>
 
             <p>
-              {perfil?.cidade || ""}
-              {perfil?.estado
-                ? ` • ${perfil.estado}`
-                : ""}
+              Categoria atual
+              do seu perfil.
             </p>
+
           </article>
 
         </section>
 
 
-        {/* AÇÕES */}
+        {/* MENSAGEM */}
+
+        {message && (
+
+          <div className="registerMessage">
+
+            {message}
+
+          </div>
+
+        )}
+
+
+        {/* INTERESSES */}
 
         <section className="dashboardActions">
 
           <div className="dashboardSectionTitle">
+
             <span className="eyebrow">
-              MEU PERFIL
+              NOVOS INTERESSES
             </span>
 
             <h2>
-              Complete sua presença
+              Quem quer conhecer você
             </h2>
+
+          </div>
+
+
+          {interesses.length === 0 ? (
+
+            <div className="dashboardCard">
+
+              <h2>
+                Nenhum novo interesse
+              </h2>
+
+              <p>
+                Quando alguém clicar no
+                coração do seu perfil,
+                aparecerá aqui.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="dashboardActionsGrid">
+
+              {interesses.map(
+                (interesse) => (
+
+                  <article
+                    className="dashboardActionCard"
+                    key={
+                      interesse.id
+                    }
+                  >
+
+                    <span>
+                      ♥
+                    </span>
+
+
+                    <div>
+
+                      <strong>
+                        Novo interesse
+                      </strong>
+
+                      <small>
+                        Um cliente demonstrou
+                        interesse no seu perfil.
+                      </small>
+
+                    </div>
+
+
+                    <div className="interestActions">
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          responderInteresse(
+                            interesse.id,
+                            "recusado"
+                          )
+                        }
+                      >
+                        Recusar
+                      </button>
+
+
+                      <button
+                        type="button"
+                        className="interestAccept"
+                        onClick={() =>
+                          responderInteresse(
+                            interesse.id,
+                            "aceito"
+                          )
+                        }
+                      >
+                        Aceitar
+                      </button>
+
+                    </div>
+
+                  </article>
+
+                )
+              )}
+
+            </div>
+
+          )}
+
+        </section>
+
+
+        {/* MATCHES */}
+
+        <section
+          className="dashboardActions"
+          style={{
+            marginTop: "55px",
+          }}
+        >
+
+          <div className="dashboardSectionTitle">
+
+            <span className="eyebrow">
+              MATCHES
+            </span>
+
+            <h2>
+              Suas conexões
+            </h2>
+
+          </div>
+
+
+          {matches.length === 0 ? (
+
+            <div className="dashboardCard">
+
+              <h2>
+                Nenhum match ainda
+              </h2>
+
+              <p>
+                Quando você aceitar um
+                interesse, o match aparecerá
+                aqui.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="dashboardActionsGrid">
+
+              {matches.map(
+                (match) => (
+
+                  <article
+                    className="dashboardActionCard"
+                    key={
+                      match.id
+                    }
+                  >
+
+                    <span>
+                      ✦
+                    </span>
+
+                    <div>
+
+                      <strong>
+                        Match
+                      </strong>
+
+                      <small>
+                        Nova conexão criada.
+                      </small>
+
+                    </div>
+
+                    <b>
+                      →
+                    </b>
+
+                  </article>
+
+                )
+              )}
+
+            </div>
+
+          )}
+
+        </section>
+
+
+        {/* ACESSO PERFIL */}
+
+        <section
+          className="dashboardActions"
+          style={{
+            marginTop: "55px",
+          }}
+        >
+
+          <div className="dashboardSectionTitle">
+
+            <span className="eyebrow">
+              MINHA CONTA
+            </span>
+
+            <h2>
+              Gerencie seu perfil
+            </h2>
+
           </div>
 
 
           <div className="dashboardActionsGrid">
 
-            <button
-              type="button"
+            <Link
+              href="/acompanhante/perfil"
               className="dashboardActionCard"
             >
+
               <span>
                 01
               </span>
 
               <div>
+
                 <strong>
-                  Editar perfil
+                  Meu perfil
                 </strong>
 
                 <small>
-                  Nome, descrição e
-                  informações públicas.
+                  Dados, descrição,
+                  localização e informações.
                 </small>
+
               </div>
 
               <b>
                 →
               </b>
-            </button>
+
+            </Link>
 
 
-            <button
-              type="button"
+            <Link
+              href="/acompanhante/perfil"
               className="dashboardActionCard"
             >
+
               <span>
                 02
               </span>
 
               <div>
+
                 <strong>
                   Minhas fotos
                 </strong>
 
                 <small>
-                  Adicione e organize
-                  suas fotos.
+                  Gerencie as imagens
+                  do seu perfil.
                 </small>
+
               </div>
 
               <b>
                 →
               </b>
-            </button>
 
-
-            <button
-              type="button"
-              className="dashboardActionCard"
-            >
-              <span>
-                03
-              </span>
-
-              <div>
-                <strong>
-                  Localização
-                </strong>
-
-                <small>
-                  Atualize cidade
-                  e bairro.
-                </small>
-              </div>
-
-              <b>
-                →
-              </b>
-            </button>
-
-
-            <button
-              type="button"
-              className="dashboardActionCard"
-            >
-              <span>
-                04
-              </span>
-
-              <div>
-                <strong>
-                  Disponibilidade
-                </strong>
-
-                <small>
-                  Configure quando
-                  seu perfil está disponível.
-                </small>
-              </div>
-
-              <b>
-                →
-              </b>
-            </button>
+            </Link>
 
           </div>
+
         </section>
 
 
-        <div className="dashboardBack">
-          <Link href="/">
-            ← Voltar para o AiFod
-          </Link>
-        </div>
-
       </div>
+
     </main>
   );
 }
