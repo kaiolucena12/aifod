@@ -6,9 +6,14 @@ import {
 } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/client";
+import {
+  useRouter,
+} from "next/navigation";
+
+import {
+  createClient,
+} from "@/lib/supabase/client";
 
 
 type Acompanhante = {
@@ -35,21 +40,51 @@ type Match = {
 
 export default function PainelAcompanhantePage() {
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [perfil, setPerfil] =
-    useState<Acompanhante | null>(null);
 
-  const [interesses, setInteresses] =
+  const [
+    perfil,
+    setPerfil,
+  ] =
+    useState<Acompanhante | null>(
+      null
+    );
+
+
+  const [
+    interesses,
+    setInteresses,
+  ] =
     useState<Interesse[]>([]);
 
-  const [matches, setMatches] =
+
+  const [
+    matches,
+    setMatches,
+  ] =
     useState<Match[]>([]);
 
-  const [loading, setLoading] =
+
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true);
 
-  const [message, setMessage] =
+
+  const [
+    message,
+    setMessage,
+  ] =
+    useState("");
+
+
+  const [
+    erro,
+    setErro,
+  ] =
     useState("");
 
 
@@ -61,10 +96,14 @@ export default function PainelAcompanhantePage() {
         createClient();
 
 
-      /* USUÁRIO */
+      /*
+        USUÁRIO
+      */
 
       const {
-        data: { user },
+        data: {
+          user,
+        },
       } =
         await supabase.auth.getUser();
 
@@ -79,7 +118,9 @@ export default function PainelAcompanhantePage() {
       }
 
 
-      /* CONFERE ROLE */
+      /*
+        ROLE
+      */
 
       const {
         data: profile,
@@ -87,7 +128,10 @@ export default function PainelAcompanhantePage() {
         await supabase
           .from("profiles")
           .select("role")
-          .eq("id", user.id)
+          .eq(
+            "id",
+            user.id
+          )
           .single();
 
 
@@ -98,18 +142,22 @@ export default function PainelAcompanhantePage() {
       ) {
 
         router.replace(
-          "/profissionais"
+          "/cliente"
         );
 
         return;
       }
 
 
-      /* PERFIL */
+      /*
+        PERFIL DA ACOMPANHANTE
+      */
 
       const {
         data:
           acompanhanteData,
+        error:
+          acompanhanteError,
       } =
         await supabase
           .from(
@@ -120,23 +168,44 @@ export default function PainelAcompanhantePage() {
             status,
             plano
           `)
-          .eq("id", user.id)
+          .eq(
+            "id",
+            user.id
+          )
           .single();
 
 
-      if (acompanhanteData) {
+      if (
+        acompanhanteError
+      ) {
+
+        setErro(
+          "Não foi possível carregar seu perfil."
+        );
+
+      }
+
+
+      if (
+        acompanhanteData
+      ) {
 
         setPerfil(
           acompanhanteData
         );
+
       }
 
 
-      /* INTERESSES */
+      /*
+        INTERESSES PENDENTES
+      */
 
       const {
         data:
           interessesData,
+        error:
+          interessesError,
       } =
         await supabase
           .from("interesses")
@@ -162,16 +231,31 @@ export default function PainelAcompanhantePage() {
           );
 
 
+      if (
+        interessesError
+      ) {
+
+        console.error(
+          interessesError
+        );
+
+      }
+
+
       setInteresses(
         interessesData || []
       );
 
 
-      /* MATCHES */
+      /*
+        MATCHES
+      */
 
       const {
         data:
           matchesData,
+        error:
+          matchesError,
       } =
         await supabase
           .from("matches")
@@ -196,12 +280,24 @@ export default function PainelAcompanhantePage() {
           );
 
 
+      if (
+        matchesError
+      ) {
+
+        console.error(
+          matchesError
+        );
+
+      }
+
+
       setMatches(
         matchesData || []
       );
 
 
       setLoading(false);
+
     }
 
 
@@ -209,6 +305,10 @@ export default function PainelAcompanhantePage() {
 
   }, [router]);
 
+
+  /*
+    ACEITAR / RECUSAR
+  */
 
   async function responderInteresse(
     id: string,
@@ -221,18 +321,24 @@ export default function PainelAcompanhantePage() {
       createClient();
 
 
+    setMessage("");
+    setErro("");
+
+
     const {
       error,
     } =
       await supabase
         .from("interesses")
         .update({
+
           status:
             resposta,
 
           updated_at:
             new Date()
               .toISOString(),
+
         })
         .eq(
           "id",
@@ -242,7 +348,7 @@ export default function PainelAcompanhantePage() {
 
     if (error) {
 
-      setMessage(
+      setErro(
         "Não foi possível atualizar o interesse."
       );
 
@@ -251,8 +357,8 @@ export default function PainelAcompanhantePage() {
 
 
     setInteresses(
-      (atual) =>
-        atual.filter(
+      (lista) =>
+        lista.filter(
           (item) =>
             item.id !== id
         )
@@ -260,48 +366,190 @@ export default function PainelAcompanhantePage() {
 
 
     if (
-      resposta === "aceito"
+      resposta ===
+      "aceito"
     ) {
 
       setMessage(
         "Interesse aceito. Um novo match foi criado."
       );
 
+
+      const {
+        data: {
+          user,
+        },
+      } =
+        await supabase.auth.getUser();
+
+
+      if (user) {
+
+        const {
+          data:
+            matchesAtualizados,
+        } =
+          await supabase
+            .from("matches")
+            .select(`
+              id,
+              cliente_id,
+              created_at
+            `)
+            .eq(
+              "acompanhante_id",
+              user.id
+            )
+            .eq(
+              "status",
+              "ativo"
+            )
+            .order(
+              "created_at",
+              {
+                ascending: false,
+              }
+            );
+
+
+        setMatches(
+          matchesAtualizados ||
+          []
+        );
+
+      }
+
     } else {
 
       setMessage(
         "Interesse recusado."
       );
+
     }
 
   }
 
+
+  /*
+    SAIR
+  */
 
   async function sair() {
 
     const supabase =
       createClient();
 
+
     await supabase.auth.signOut();
+
 
     router.replace("/");
 
     router.refresh();
+
   }
 
+
+  function nomePlano() {
+
+    if (
+      perfil?.plano ===
+      "black"
+    ) {
+      return "Black";
+    }
+
+
+    if (
+      perfil?.plano ===
+      "comfort"
+    ) {
+      return "Comfort";
+    }
+
+
+    return "X";
+
+  }
+
+
+  function nomeStatus() {
+
+    if (
+      perfil?.status ===
+      "aprovado"
+    ) {
+      return "Perfil aprovado";
+    }
+
+
+    if (
+      perfil?.status ===
+      "rejeitado"
+    ) {
+      return "Perfil não aprovado";
+    }
+
+
+    if (
+      perfil?.status ===
+      "suspenso"
+    ) {
+      return "Perfil suspenso";
+    }
+
+
+    return "Em análise";
+
+  }
+
+
+  /*
+    LOADING
+  */
 
   if (loading) {
 
     return (
-      <main className="dashboardPage">
+      <main
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-[#0b0908]
+          px-5
+          text-[#f8f1e8]
+        "
+      >
 
-        <div className="dashboardLoading">
+        <div
+          className="
+            flex
+            flex-col
+            items-center
+            gap-4
+          "
+        >
 
-          <span
-            className="loginLoader"
+          <div
+            className="
+              h-8
+              w-8
+              animate-spin
+              rounded-full
+              border-2
+              border-white/10
+              border-t-[#c46f43]
+            "
           />
 
-          <p>
+          <p
+            className="
+              text-xs
+              text-white/40
+            "
+          >
             Carregando seu painel...
           </p>
 
@@ -313,108 +561,403 @@ export default function PainelAcompanhantePage() {
 
 
   return (
-    <main className="dashboardPage">
+    <main
+      className="
+        min-h-screen
+        bg-[#0b0908]
+        px-4
+        py-8
+        text-[#f8f1e8]
+        sm:px-6
+        md:px-10
+        md:py-12
+      "
+    >
 
-      <div className="dashboardContainer">
+      <div
+        className="
+          mx-auto
+          w-full
+          max-w-6xl
+        "
+      >
 
 
         {/* TOPO */}
 
-        <div className="dashboardTop">
+        <header
+          className="
+            mb-10
+            flex
+            flex-col
+            gap-6
+            md:flex-row
+            md:items-end
+            md:justify-between
+          "
+        >
 
           <div>
 
-            <span className="eyebrow">
+            <span
+              className="
+                text-[10px]
+                font-black
+                uppercase
+                tracking-[0.24em]
+                text-[#c46f43]
+              "
+            >
               PAINEL AIFOD
             </span>
 
-            <h1>
+
+            <h1
+              className="
+                mt-3
+                text-[44px]
+                font-semibold
+                leading-[0.95]
+                tracking-[-0.055em]
+                text-[#fff7f0]
+                sm:text-5xl
+                md:text-6xl
+              "
+            >
               Olá,{" "}
 
-              <em>
+              <span
+                className="
+                  text-[#e09566]
+                "
+              >
                 {perfil?.nome_artistico ||
-                  "bem-vinda"}
-              </em>
+                  "bem-vinda"}.
+              </span>
+
             </h1>
 
-            <p>
+
+            <p
+              className="
+                mt-4
+                max-w-xl
+                text-sm
+                leading-6
+                text-white/40
+              "
+            >
               Veja quem demonstrou interesse
-              no seu perfil e acompanhe seus
-              matches.
+              no seu perfil e acompanhe suas
+              conexões.
             </p>
 
           </div>
 
 
-          <button
-            type="button"
-            className="dashboardLogout"
-            onClick={sair}
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+            "
           >
-            Sair
-          </button>
 
-        </div>
+            <Link
+              href="/acompanhante/perfil"
+              className="
+                inline-flex
+                min-h-11
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#e09566]/20
+                bg-[#c46f43]/[0.06]
+                px-5
+                text-[10px]
+                font-bold
+                text-[#e09566]
+                transition
+                hover:bg-[#c46f43]/10
+              "
+            >
+              Meu perfil
+            </Link>
+
+
+            <button
+              type="button"
+              onClick={sair}
+              className="
+                min-h-11
+                rounded-full
+                border
+                border-white/10
+                bg-white/[0.025]
+                px-5
+                text-[10px]
+                text-white/45
+                transition
+                hover:bg-white/[0.06]
+                hover:text-white/75
+              "
+            >
+              Sair
+            </button>
+
+          </div>
+
+        </header>
+
+
+        {/* MENSAGENS */}
+
+        {erro && (
+
+          <div
+            className="
+              mb-5
+              rounded-2xl
+              border
+              border-red-400/15
+              bg-red-400/[0.05]
+              px-5
+              py-4
+              text-[11px]
+              text-red-200/70
+            "
+          >
+            {erro}
+          </div>
+
+        )}
+
+
+        {message && (
+
+          <div
+            className="
+              mb-5
+              rounded-2xl
+              border
+              border-emerald-400/15
+              bg-emerald-400/[0.05]
+              px-5
+              py-4
+              text-[11px]
+              text-emerald-200/70
+            "
+          >
+            {message}
+          </div>
+
+        )}
 
 
         {/* RESUMO */}
 
-        <section className="dashboardGrid">
+        <section
+          className="
+            mb-14
+            grid
+            grid-cols-1
+            gap-3
+            sm:grid-cols-2
+            lg:grid-cols-4
+          "
+        >
 
-          <article className="dashboardCard">
+          <article
+            className="
+              rounded-2xl
+              border
+              border-white/[0.07]
+              bg-white/[0.025]
+              p-5
+            "
+          >
 
-            <small>
+            <span
+              className="
+                text-[8px]
+                font-black
+                uppercase
+                tracking-[0.18em]
+                text-white/30
+              "
+            >
               NOVOS INTERESSES
-            </small>
+            </span>
 
-            <h2>
+
+            <strong
+              className="
+                mt-5
+                block
+                text-3xl
+                tracking-[-0.04em]
+                text-[#f8f1e8]
+              "
+            >
               {interesses.length}
-            </h2>
+            </strong>
 
-            <p>
-              Pessoas aguardando
-              sua resposta.
+
+            <p
+              className="
+                mt-2
+                text-[10px]
+                text-white/35
+              "
+            >
+              Aguardando sua resposta.
             </p>
 
           </article>
 
 
-          <article className="dashboardCard">
+          <article
+            className="
+              rounded-2xl
+              border
+              border-white/[0.07]
+              bg-white/[0.025]
+              p-5
+            "
+          >
 
-            <small>
+            <span
+              className="
+                text-[8px]
+                font-black
+                uppercase
+                tracking-[0.18em]
+                text-white/30
+              "
+            >
               MATCHES
-            </small>
+            </span>
 
-            <h2>
+
+            <strong
+              className="
+                mt-5
+                block
+                text-3xl
+                tracking-[-0.04em]
+                text-[#f8f1e8]
+              "
+            >
               {matches.length}
-            </h2>
+            </strong>
 
-            <p>
+
+            <p
+              className="
+                mt-2
+                text-[10px]
+                text-white/35
+              "
+            >
               Conexões ativas.
             </p>
 
           </article>
 
 
-          <article className="dashboardCard">
+          <article
+            className="
+              rounded-2xl
+              border
+              border-[#d2a86b]/15
+              bg-[radial-gradient(circle_at_90%_0%,rgba(210,168,107,0.12),transparent_40%),rgba(255,255,255,0.02)]
+              p-5
+            "
+          >
 
-            <small>
-              SEU PLANO
-            </small>
+            <span
+              className="
+                text-[8px]
+                font-black
+                uppercase
+                tracking-[0.18em]
+                text-white/30
+              "
+            >
+              CATEGORIA
+            </span>
 
-            <h2>
-              {perfil?.plano ===
-              "black"
-                ? "Black"
-                : perfil?.plano ===
-                    "comfort"
-                  ? "Comfort"
-                  : "X"}
-            </h2>
 
-            <p>
-              Categoria atual
-              do seu perfil.
+            <strong
+              className="
+                mt-5
+                block
+                text-3xl
+                tracking-[-0.04em]
+                text-[#d2a86b]
+              "
+            >
+              {nomePlano()}
+            </strong>
+
+
+            <p
+              className="
+                mt-2
+                text-[10px]
+                text-white/35
+              "
+            >
+              Categoria atual do perfil.
+            </p>
+
+          </article>
+
+
+          <article
+            className="
+              rounded-2xl
+              border
+              border-white/[0.07]
+              bg-white/[0.025]
+              p-5
+            "
+          >
+
+            <span
+              className="
+                text-[8px]
+                font-black
+                uppercase
+                tracking-[0.18em]
+                text-white/30
+              "
+            >
+              STATUS
+            </span>
+
+
+            <strong
+              className="
+                mt-5
+                block
+                text-lg
+                text-[#e09566]
+              "
+            >
+              {nomeStatus()}
+            </strong>
+
+
+            <p
+              className="
+                mt-2
+                text-[10px]
+                text-white/35
+              "
+            >
+              Situação atual do seu perfil.
             </p>
 
           </article>
@@ -422,86 +965,196 @@ export default function PainelAcompanhantePage() {
         </section>
 
 
-        {/* MENSAGEM */}
-
-        {message && (
-
-          <div className="registerMessage">
-
-            {message}
-
-          </div>
-
-        )}
-
-
         {/* INTERESSES */}
 
-        <section className="dashboardActions">
+        <section
+          className="
+            mb-16
+          "
+        >
 
-          <div className="dashboardSectionTitle">
+          <div
+            className="
+              mb-6
+            "
+          >
 
-            <span className="eyebrow">
+            <span
+              className="
+                text-[9px]
+                font-black
+                uppercase
+                tracking-[0.22em]
+                text-[#c46f43]
+              "
+            >
               NOVOS INTERESSES
             </span>
 
-            <h2>
+
+            <h2
+              className="
+                mt-2
+                text-3xl
+                font-semibold
+                tracking-[-0.045em]
+                text-[#f3e9e2]
+              "
+            >
               Quem quer conhecer você
             </h2>
 
           </div>
 
 
-          {interesses.length === 0 ? (
+          {interesses.length ===
+          0 ? (
 
-            <div className="dashboardCard">
+            <div
+              className="
+                rounded-2xl
+                border
+                border-white/[0.07]
+                bg-white/[0.02]
+                p-6
+              "
+            >
 
-              <h2>
+              <strong
+                className="
+                  text-sm
+                  text-white/75
+                "
+              >
                 Nenhum novo interesse
-              </h2>
+              </strong>
 
-              <p>
-                Quando alguém clicar no
-                coração do seu perfil,
-                aparecerá aqui.
+
+              <p
+                className="
+                  mt-2
+                  max-w-lg
+                  text-[11px]
+                  leading-5
+                  text-white/35
+                "
+              >
+                Quando um cliente clicar
+                no coração do seu perfil,
+                o interesse aparecerá aqui.
               </p>
 
             </div>
 
           ) : (
 
-            <div className="dashboardActionsGrid">
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-3
+                lg:grid-cols-2
+              "
+            >
 
               {interesses.map(
                 (interesse) => (
 
                   <article
-                    className="dashboardActionCard"
                     key={
                       interesse.id
                     }
+                    className="
+                      rounded-2xl
+                      border
+                      border-white/[0.07]
+                      bg-white/[0.025]
+                      p-5
+                    "
                   >
 
-                    <span>
-                      ♥
-                    </span>
+                    <div
+                      className="
+                        flex
+                        items-start
+                        gap-4
+                      "
+                    >
+
+                      <div
+                        className="
+                          grid
+                          h-11
+                          w-11
+                          shrink-0
+                          place-items-center
+                          rounded-full
+                          bg-[#c46f43]/10
+                          text-lg
+                          text-[#e09566]
+                        "
+                      >
+                        ♥
+                      </div>
 
 
-                    <div>
+                      <div
+                        className="
+                          flex-1
+                        "
+                      >
 
-                      <strong>
-                        Novo interesse
-                      </strong>
+                        <strong
+                          className="
+                            text-sm
+                            text-white/80
+                          "
+                        >
+                          Novo interesse
+                        </strong>
 
-                      <small>
-                        Um cliente demonstrou
-                        interesse no seu perfil.
-                      </small>
+
+                        <p
+                          className="
+                            mt-1
+                            text-[10px]
+                            leading-5
+                            text-white/35
+                          "
+                        >
+                          Um cliente demonstrou
+                          interesse no seu perfil.
+                        </p>
+
+
+                        <span
+                          className="
+                            mt-2
+                            block
+                            text-[8px]
+                            text-white/20
+                          "
+                        >
+                          {new Date(
+                            interesse.created_at
+                          ).toLocaleDateString(
+                            "pt-BR"
+                          )}
+                        </span>
+
+                      </div>
 
                     </div>
 
 
-                    <div className="interestActions">
+                    <div
+                      className="
+                        mt-5
+                        grid
+                        grid-cols-2
+                        gap-2
+                      "
+                    >
 
                       <button
                         type="button"
@@ -511,6 +1164,19 @@ export default function PainelAcompanhantePage() {
                             "recusado"
                           )
                         }
+                        className="
+                          min-h-11
+                          rounded-full
+                          border
+                          border-white/10
+                          bg-white/[0.025]
+                          text-[10px]
+                          font-bold
+                          text-white/45
+                          transition
+                          hover:bg-white/[0.06]
+                          hover:text-white/75
+                        "
                       >
                         Recusar
                       </button>
@@ -518,13 +1184,24 @@ export default function PainelAcompanhantePage() {
 
                       <button
                         type="button"
-                        className="interestAccept"
                         onClick={() =>
                           responderInteresse(
                             interesse.id,
                             "aceito"
                           )
                         }
+                        className="
+                          min-h-11
+                          rounded-full
+                          bg-gradient-to-r
+                          from-[#e09566]
+                          to-[#c46f43]
+                          text-[10px]
+                          font-black
+                          text-[#160b07]
+                          transition
+                          hover:-translate-y-0.5
+                        "
                       >
                         Aceitar
                       </button>
@@ -546,74 +1223,171 @@ export default function PainelAcompanhantePage() {
         {/* MATCHES */}
 
         <section
-          className="dashboardActions"
-          style={{
-            marginTop: "55px",
-          }}
+          className="
+            mb-16
+          "
         >
 
-          <div className="dashboardSectionTitle">
+          <div
+            className="
+              mb-6
+            "
+          >
 
-            <span className="eyebrow">
+            <span
+              className="
+                text-[9px]
+                font-black
+                uppercase
+                tracking-[0.22em]
+                text-[#c46f43]
+              "
+            >
               MATCHES
             </span>
 
-            <h2>
+
+            <h2
+              className="
+                mt-2
+                text-3xl
+                font-semibold
+                tracking-[-0.045em]
+                text-[#f3e9e2]
+              "
+            >
               Suas conexões
             </h2>
 
           </div>
 
 
-          {matches.length === 0 ? (
+          {matches.length ===
+          0 ? (
 
-            <div className="dashboardCard">
+            <div
+              className="
+                rounded-2xl
+                border
+                border-white/[0.07]
+                bg-white/[0.02]
+                p-6
+              "
+            >
 
-              <h2>
+              <strong
+                className="
+                  text-sm
+                  text-white/75
+                "
+              >
                 Nenhum match ainda
-              </h2>
+              </strong>
 
-              <p>
-                Quando você aceitar um
-                interesse, o match aparecerá
-                aqui.
+
+              <p
+                className="
+                  mt-2
+                  text-[11px]
+                  text-white/35
+                "
+              >
+                Quando você aceitar um interesse,
+                o match aparecerá aqui.
               </p>
 
             </div>
 
           ) : (
 
-            <div className="dashboardActionsGrid">
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-3
+                sm:grid-cols-2
+                lg:grid-cols-3
+              "
+            >
 
               {matches.map(
                 (match) => (
 
                   <article
-                    className="dashboardActionCard"
                     key={
                       match.id
                     }
+                    className="
+                      flex
+                      items-center
+                      gap-4
+                      rounded-2xl
+                      border
+                      border-white/[0.07]
+                      bg-white/[0.025]
+                      p-5
+                    "
                   >
 
-                    <span>
+                    <div
+                      className="
+                        grid
+                        h-11
+                        w-11
+                        shrink-0
+                        place-items-center
+                        rounded-full
+                        bg-[#d2a86b]/10
+                        text-[#d2a86b]
+                      "
+                    >
                       ✦
-                    </span>
+                    </div>
 
-                    <div>
 
-                      <strong>
-                        Match
+                    <div
+                      className="
+                        min-w-0
+                        flex-1
+                      "
+                    >
+
+                      <strong
+                        className="
+                          block
+                          text-sm
+                          text-white/80
+                        "
+                      >
+                        Match confirmado
                       </strong>
 
-                      <small>
-                        Nova conexão criada.
-                      </small>
+
+                      <span
+                        className="
+                          mt-1
+                          block
+                          text-[9px]
+                          text-white/30
+                        "
+                      >
+                        {new Date(
+                          match.created_at
+                        ).toLocaleDateString(
+                          "pt-BR"
+                        )}
+                      </span>
 
                     </div>
 
-                    <b>
+
+                    <span
+                      className="
+                        text-[#e09566]
+                      "
+                    >
                       →
-                    </b>
+                    </span>
 
                   </article>
 
@@ -627,88 +1401,122 @@ export default function PainelAcompanhantePage() {
         </section>
 
 
-        {/* ACESSO PERFIL */}
+        {/* PERFIL */}
 
-        <section
-          className="dashboardActions"
-          style={{
-            marginTop: "55px",
-          }}
-        >
+        <section>
 
-          <div className="dashboardSectionTitle">
+          <div
+            className="
+              mb-6
+            "
+          >
 
-            <span className="eyebrow">
+            <span
+              className="
+                text-[9px]
+                font-black
+                uppercase
+                tracking-[0.22em]
+                text-[#c46f43]
+              "
+            >
               MINHA CONTA
             </span>
 
-            <h2>
+
+            <h2
+              className="
+                mt-2
+                text-3xl
+                font-semibold
+                tracking-[-0.045em]
+                text-[#f3e9e2]
+              "
+            >
               Gerencie seu perfil
             </h2>
 
           </div>
 
 
-          <div className="dashboardActionsGrid">
+          <Link
+            href="/acompanhante/perfil"
+            className="
+              group
+              flex
+              items-center
+              gap-5
+              rounded-2xl
+              border
+              border-white/[0.07]
+              bg-white/[0.025]
+              p-5
+              transition
+              hover:border-[#e09566]/25
+              hover:bg-[#c46f43]/[0.05]
+            "
+          >
 
-            <Link
-              href="/acompanhante/perfil"
-              className="dashboardActionCard"
+            <div
+              className="
+                grid
+                h-12
+                w-12
+                shrink-0
+                place-items-center
+                rounded-full
+                bg-[#c46f43]/10
+                text-sm
+                font-bold
+                text-[#e09566]
+              "
+            >
+              01
+            </div>
+
+
+            <div
+              className="
+                flex-1
+              "
             >
 
-              <span>
-                01
-              </span>
-
-              <div>
-
-                <strong>
-                  Meu perfil
-                </strong>
-
-                <small>
-                  Dados, descrição,
-                  localização e informações.
-                </small>
-
-              </div>
-
-              <b>
-                →
-              </b>
-
-            </Link>
+              <strong
+                className="
+                  text-sm
+                  text-white/80
+                "
+              >
+                Meu perfil
+              </strong>
 
 
-            <Link
-              href="/acompanhante/perfil"
-              className="dashboardActionCard"
+              <p
+                className="
+                  mt-1
+                  text-[10px]
+                  text-white/35
+                "
+              >
+                Edite suas fotos, informações,
+                localização e disponibilidade.
+              </p>
+
+            </div>
+
+
+            <span
+              className="
+                text-lg
+                text-[#c46f43]
+                transition
+                group-hover:translate-x-1
+              "
             >
+              →
+            </span>
 
-              <span>
-                02
-              </span>
-
-              <div>
-
-                <strong>
-                  Minhas fotos
-                </strong>
-
-                <small>
-                  Gerencie as imagens
-                  do seu perfil.
-                </small>
-
-              </div>
-
-              <b>
-                →
-              </b>
-
-            </Link>
-
-          </div>
+          </Link>
 
         </section>
 

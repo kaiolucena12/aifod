@@ -3,17 +3,11 @@
 import {
   useEffect,
   useState,
-} from "react";
-
-import type {
-  ChangeEvent,
+  type ChangeEvent,
 } from "react";
 
 import Link from "next/link";
-
-import {
-  useRouter,
-} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import {
   createClient,
@@ -45,13 +39,33 @@ type Foto = {
 
 
 const estados = [
-  "AC", "AL", "AP", "AM",
-  "BA", "CE", "DF", "ES",
-  "GO", "MA", "MT", "MS",
-  "MG", "PA", "PB", "PR",
-  "PE", "PI", "RJ", "RN",
-  "RS", "RO", "RR", "SC",
-  "SP", "SE", "TO",
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
 ];
 
 
@@ -60,88 +74,139 @@ export default function PerfilAcompanhantePage() {
   const router =
     useRouter();
 
-  const [userId, setUserId] =
+
+  const [
+    userId,
+    setUserId,
+  ] =
     useState("");
 
-  const [loading, setLoading] =
+
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true);
 
-  const [salvando, setSalvando] =
+
+  const [
+    salvando,
+    setSalvando,
+  ] =
     useState(false);
 
-  const [enviandoFoto, setEnviandoFoto] =
+
+  const [
+    enviandoFoto,
+    setEnviandoFoto,
+  ] =
     useState(false);
 
-  const [message, setMessage] =
+
+  const [
+    message,
+    setMessage,
+  ] =
     useState("");
 
-  const [erro, setErro] =
+
+  const [
+    erro,
+    setErro,
+  ] =
     useState("");
 
 
   const [
     nomeArtistico,
     setNomeArtistico,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     telefone,
     setTelefone,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     idade,
     setIdade,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     bairro,
     setBairro,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     cidade,
     setCidade,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     estado,
     setEstado,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     descricaoCurta,
     setDescricaoCurta,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     sobre,
     setSobre,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     disponibilidade,
     setDisponibilidade,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     plano,
     setPlano,
-  ] = useState("x");
+  ] =
+    useState("x");
+
 
   const [
     status,
     setStatus,
-  ] = useState("pendente");
+  ] =
+    useState("pendente");
+
 
   const [
     fotoCapa,
     setFotoCapa,
-  ] = useState<string | null>(
-    null
-  );
+  ] =
+    useState<string | null>(
+      null
+    );
 
-  const [fotos, setFotos] =
+
+  const [
+    fotos,
+    setFotos,
+  ] =
     useState<Foto[]>([]);
 
 
@@ -152,6 +217,10 @@ export default function PerfilAcompanhantePage() {
       const supabase =
         createClient();
 
+
+      /*
+        USUÁRIO
+      */
 
       const {
         data: {
@@ -170,6 +239,10 @@ export default function PerfilAcompanhantePage() {
         return;
       }
 
+
+      /*
+        ROLE
+      */
 
       const {
         data: profile,
@@ -201,6 +274,10 @@ export default function PerfilAcompanhantePage() {
         user.id
       );
 
+
+      /*
+        PERFIL
+      */
 
       const {
         data,
@@ -248,13 +325,18 @@ export default function PerfilAcompanhantePage() {
         const perfil =
           data as Perfil;
 
+
         setNomeArtistico(
-          perfil.nome_artistico || ""
+          perfil.nome_artistico ||
+            ""
         );
 
+
         setTelefone(
-          perfil.telefone || ""
+          perfil.telefone ||
+            ""
         );
+
 
         setIdade(
           perfil.idade
@@ -264,44 +346,59 @@ export default function PerfilAcompanhantePage() {
             : ""
         );
 
+
         setBairro(
-          perfil.bairro || ""
+          perfil.bairro ||
+            ""
         );
+
 
         setCidade(
-          perfil.cidade || ""
+          perfil.cidade ||
+            ""
         );
 
+
         setEstado(
-          perfil.estado || ""
+          perfil.estado ||
+            ""
         );
+
 
         setDescricaoCurta(
           perfil.descricao_curta ||
             ""
         );
 
+
         setSobre(
-          perfil.sobre || ""
+          perfil.sobre ||
+            ""
         );
+
 
         setDisponibilidade(
           perfil.disponibilidade ||
             ""
         );
 
+
         setPlano(
-          perfil.plano || "x"
+          perfil.plano ||
+            "x"
         );
+
 
         setStatus(
           perfil.status ||
             "pendente"
         );
 
+
         setFotoCapa(
           perfil.foto_capa
         );
+
       }
 
 
@@ -311,6 +408,7 @@ export default function PerfilAcompanhantePage() {
 
 
       setLoading(false);
+
     }
 
 
@@ -363,6 +461,10 @@ export default function PerfilAcompanhantePage() {
 
   }
 
+
+  /*
+    SALVAR PERFIL
+  */
 
   async function salvarPerfil() {
 
@@ -478,8 +580,10 @@ export default function PerfilAcompanhantePage() {
 
     if (error) {
 
+      console.error(error);
+
       setErro(
-        error.message
+        "Não foi possível salvar as alterações."
       );
 
       setSalvando(false);
@@ -492,9 +596,15 @@ export default function PerfilAcompanhantePage() {
       "Perfil atualizado com sucesso."
     );
 
+
     setSalvando(false);
+
   }
 
+
+  /*
+    UPLOAD DAS FOTOS
+  */
 
   async function enviarFotos(
     event:
@@ -524,7 +634,8 @@ export default function PerfilAcompanhantePage() {
         "Você pode adicionar no máximo 8 fotos."
       );
 
-      event.target.value = "";
+      event.target.value =
+        "";
 
       return;
     }
@@ -532,7 +643,10 @@ export default function PerfilAcompanhantePage() {
 
     setErro("");
     setMessage("");
-    setEnviandoFoto(true);
+
+    setEnviandoFoto(
+      true
+    );
 
 
     const supabase =
@@ -556,7 +670,6 @@ export default function PerfilAcompanhantePage() {
             "image/"
           )
         ) {
-
           continue;
         }
 
@@ -590,6 +703,10 @@ export default function PerfilAcompanhantePage() {
           `${userId}/${nomeArquivo}`;
 
 
+        /*
+          STORAGE
+        */
+
         const {
           error:
             uploadError,
@@ -613,6 +730,10 @@ export default function PerfilAcompanhantePage() {
 
         if (uploadError) {
 
+          console.error(
+            uploadError
+          );
+
           setErro(
             uploadError.message
           );
@@ -620,6 +741,10 @@ export default function PerfilAcompanhantePage() {
           continue;
         }
 
+
+        /*
+          URL PÚBLICA
+        */
 
         const {
           data:
@@ -635,9 +760,12 @@ export default function PerfilAcompanhantePage() {
 
 
         const url =
-          publicUrlData
-            .publicUrl;
+          publicUrlData.publicUrl;
 
+
+        /*
+          BANCO
+        */
 
         const ordem =
           fotos.length + i;
@@ -668,6 +796,11 @@ export default function PerfilAcompanhantePage() {
 
         if (insertError) {
 
+          console.error(
+            insertError
+          );
+
+
           await supabase.storage
             .from(
               "acompanhantes"
@@ -675,6 +808,7 @@ export default function PerfilAcompanhantePage() {
             .remove([
               caminho,
             ]);
+
 
           setErro(
             insertError.message
@@ -685,9 +819,9 @@ export default function PerfilAcompanhantePage() {
 
 
         /*
-         * PRIMEIRA FOTO
-         * VIRA CAPA
-         */
+          PRIMEIRA FOTO
+          VIRA CAPA
+        */
 
         if (
           !fotoCapa &&
@@ -695,23 +829,33 @@ export default function PerfilAcompanhantePage() {
           i === 0
         ) {
 
-          await supabase
-            .from(
-              "acompanhante_profiles"
-            )
-            .update({
-              foto_capa:
-                url,
-            })
-            .eq(
-              "id",
-              userId
+          const {
+            error:
+              capaError,
+          } =
+            await supabase
+              .from(
+                "acompanhante_profiles"
+              )
+              .update({
+                foto_capa:
+                  url,
+              })
+              .eq(
+                "id",
+                userId
+              );
+
+
+          if (
+            !capaError
+          ) {
+
+            setFotoCapa(
+              url
             );
 
-
-          setFotoCapa(
-            url
-          );
+          }
 
         }
 
@@ -729,7 +873,10 @@ export default function PerfilAcompanhantePage() {
 
     } finally {
 
-      setEnviandoFoto(false);
+      setEnviandoFoto(
+        false
+      );
+
 
       event.target.value =
         "";
@@ -739,12 +886,20 @@ export default function PerfilAcompanhantePage() {
   }
 
 
+  /*
+    DEFINIR FOTO DE CAPA
+  */
+
   async function definirCapa(
     foto: Foto
   ) {
 
     const supabase =
       createClient();
+
+
+    setErro("");
+    setMessage("");
 
 
     const {
@@ -755,8 +910,10 @@ export default function PerfilAcompanhantePage() {
           "acompanhante_profiles"
         )
         .update({
+
           foto_capa:
             foto.url,
+
         })
         .eq(
           "id",
@@ -778,12 +935,17 @@ export default function PerfilAcompanhantePage() {
       foto.url
     );
 
+
     setMessage(
       "Foto de capa atualizada."
     );
 
   }
 
+
+  /*
+    EXCLUIR FOTO
+  */
 
   async function excluirFoto(
     foto: Foto
@@ -804,17 +966,36 @@ export default function PerfilAcompanhantePage() {
       createClient();
 
 
+    setErro("");
+    setMessage("");
+
+
     if (
       foto.storage_path
     ) {
 
-      await supabase.storage
-        .from(
-          "acompanhantes"
-        )
-        .remove([
-          foto.storage_path,
-        ]);
+      const {
+        error:
+          storageError,
+      } =
+        await supabase.storage
+          .from(
+            "acompanhantes"
+          )
+          .remove([
+            foto.storage_path,
+          ]);
+
+
+      if (
+        storageError
+      ) {
+
+        console.error(
+          storageError
+        );
+
+      }
 
     }
 
@@ -846,9 +1027,14 @@ export default function PerfilAcompanhantePage() {
     const restantes =
       fotos.filter(
         (item) =>
-          item.id !== foto.id
+          item.id !==
+          foto.id
       );
 
+
+    /*
+      SE APAGOU A CAPA
+    */
 
     if (
       fotoCapa ===
@@ -860,23 +1046,35 @@ export default function PerfilAcompanhantePage() {
         null;
 
 
-      await supabase
-        .from(
-          "acompanhante_profiles"
-        )
-        .update({
-          foto_capa:
-            novaCapa,
-        })
-        .eq(
-          "id",
-          userId
+      const {
+        error:
+          capaError,
+      } =
+        await supabase
+          .from(
+            "acompanhante_profiles"
+          )
+          .update({
+
+            foto_capa:
+              novaCapa,
+
+          })
+          .eq(
+            "id",
+            userId
+          );
+
+
+      if (
+        !capaError
+      ) {
+
+        setFotoCapa(
+          novaCapa
         );
 
-
-      setFotoCapa(
-        novaCapa
-      );
+      }
 
     }
 
@@ -884,6 +1082,7 @@ export default function PerfilAcompanhantePage() {
     setFotos(
       restantes
     );
+
 
     setMessage(
       "Foto excluída."
@@ -895,55 +1094,100 @@ export default function PerfilAcompanhantePage() {
   function nomePlano() {
 
     if (
-      plano === "comfort"
+      plano ===
+      "comfort"
     ) {
       return "Comfort";
     }
 
+
     if (
-      plano === "black"
+      plano ===
+      "black"
     ) {
       return "Black";
     }
 
+
     return "X";
+
   }
 
 
   function nomeStatus() {
 
     if (
-      status === "aprovado"
+      status ===
+      "aprovado"
     ) {
       return "Perfil aprovado";
     }
 
+
     if (
-      status === "rejeitado"
+      status ===
+      "rejeitado"
     ) {
       return "Perfil não aprovado";
     }
 
+
     if (
-      status === "suspenso"
+      status ===
+      "suspenso"
     ) {
       return "Perfil suspenso";
     }
 
+
     return "Em análise";
+
   }
 
 
   if (loading) {
 
     return (
-      <main className="companionEditorPage">
+      <main
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-[#0b0908]
+          px-5
+          text-[#f8f1e8]
+        "
+      >
 
-        <div className="dashboardLoading">
+        <div
+          className="
+            flex
+            flex-col
+            items-center
+            gap-4
+          "
+        >
 
-          <span className="loginLoader" />
+          <div
+            className="
+              h-8
+              w-8
+              animate-spin
+              rounded-full
+              border-2
+              border-white/10
+              border-t-[#c46f43]
+            "
+          />
 
-          <p>
+
+          <p
+            className="
+              text-xs
+              text-white/40
+            "
+          >
             Carregando seu perfil...
           </p>
 
@@ -955,136 +1199,380 @@ export default function PerfilAcompanhantePage() {
 
 
   return (
-    <main className="companionEditorPage">
+    <main
+      className="
+        min-h-screen
+        bg-[#0b0908]
+        px-4
+        py-8
+        text-[#f8f1e8]
+        sm:px-6
+        md:px-10
+        md:py-12
+      "
+    >
 
-      <div className="companionEditorContainer">
+      <div
+        className="
+          mx-auto
+          w-full
+          max-w-6xl
+        "
+      >
 
 
-        <div className="companionEditorTop">
+        {/* TOPO */}
+
+        <header
+          className="
+            mb-10
+            flex
+            flex-col
+            gap-6
+            md:flex-row
+            md:items-end
+            md:justify-between
+          "
+        >
 
           <div>
 
             <Link
               href="/acompanhante/painel"
-              className="companionEditorBack"
+              className="
+                mb-6
+                inline-flex
+                items-center
+                gap-2
+                text-[10px]
+                font-medium
+                text-white/35
+                transition
+                hover:text-white/70
+              "
             >
               ← Voltar ao painel
             </Link>
 
 
-            <span className="eyebrow">
-              MEU PERFIL
-            </span>
+            <div>
+
+              <span
+                className="
+                  text-[10px]
+                  font-black
+                  uppercase
+                  tracking-[0.24em]
+                  text-[#c46f43]
+                "
+              >
+                MEU PERFIL
+              </span>
 
 
-            <h1>
-              Seu perfil,
-              <em> do seu jeito.</em>
-            </h1>
+              <h1
+                className="
+                  mt-3
+                  text-[44px]
+                  font-semibold
+                  leading-[0.95]
+                  tracking-[-0.055em]
+                  text-[#fff7f0]
+                  sm:text-5xl
+                  md:text-6xl
+                "
+              >
+                Seu perfil,{" "}
+
+                <span
+                  className="
+                    text-[#e09566]
+                  "
+                >
+                  do seu jeito.
+                </span>
+
+              </h1>
 
 
-            <p>
-              Mantenha suas informações e
-              fotos sempre atualizadas.
-            </p>
+              <p
+                className="
+                  mt-4
+                  max-w-xl
+                  text-sm
+                  leading-6
+                  text-white/40
+                "
+              >
+                Mantenha suas informações e
+                fotos sempre atualizadas.
+              </p>
+
+            </div>
 
           </div>
 
 
-          <div className="companionEditorStatus">
+          <div
+            className="
+              flex
+              flex-wrap
+              gap-2
+              md:justify-end
+            "
+          >
 
-            <span>
+            <span
+              className="
+                rounded-full
+                border
+                border-white/10
+                bg-white/[0.025]
+                px-4
+                py-2.5
+                text-[9px]
+                font-bold
+                text-white/50
+              "
+            >
               {nomeStatus()}
             </span>
 
-            <strong>
+
+            <span
+              className="
+                rounded-full
+                border
+                border-[#d2a86b]/20
+                bg-[#d2a86b]/[0.06]
+                px-4
+                py-2.5
+                text-[9px]
+                font-black
+                uppercase
+                tracking-[0.12em]
+                text-[#d2a86b]
+              "
+            >
               {nomePlano()}
-            </strong>
+            </span>
 
           </div>
 
-        </div>
+        </header>
 
+
+        {/* ERRO */}
 
         {erro && (
 
-          <div className="companionEditorAlert error">
+          <div
+            className="
+              mb-5
+              rounded-2xl
+              border
+              border-red-400/15
+              bg-red-400/[0.05]
+              px-5
+              py-4
+              text-[11px]
+              text-red-200/75
+            "
+          >
             {erro}
           </div>
 
         )}
 
 
+        {/* SUCESSO */}
+
         {message && (
 
-          <div className="companionEditorAlert success">
+          <div
+            className="
+              mb-5
+              rounded-2xl
+              border
+              border-emerald-400/15
+              bg-emerald-400/[0.05]
+              px-5
+              py-4
+              text-[11px]
+              text-emerald-200/75
+            "
+          >
             {message}
           </div>
 
         )}
 
 
-        {/* FOTOS */}
+        {/* =========================
+            FOTOS
+        ========================= */}
 
-        <section className="companionEditorSection">
+        <section
+          className="
+            mb-5
+            rounded-[26px]
+            border
+            border-white/[0.07]
+            bg-white/[0.02]
+            p-5
+            sm:p-7
+          "
+        >
 
-          <div className="companionEditorSectionTitle">
+          <div
+            className="
+              mb-6
+              flex
+              items-end
+              justify-between
+              gap-5
+            "
+          >
 
             <div>
 
-              <span className="eyebrow">
+              <span
+                className="
+                  text-[9px]
+                  font-black
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#c46f43]
+                "
+              >
                 GALERIA
               </span>
 
-              <h2>
+
+              <h2
+                className="
+                  mt-2
+                  text-3xl
+                  font-semibold
+                  tracking-[-0.045em]
+                  text-[#f3e9e2]
+                "
+              >
                 Suas fotos
               </h2>
 
             </div>
 
 
-            <span className="companionEditorCounter">
+            <span
+              className="
+                text-[10px]
+                text-white/30
+              "
+            >
               {fotos.length}/8
             </span>
 
           </div>
 
 
-          <div className="companionPhotoGrid">
+          <div
+            className="
+              grid
+              grid-cols-2
+              gap-3
+              md:grid-cols-3
+              lg:grid-cols-4
+            "
+          >
 
             {fotos.map(
               (foto) => (
 
                 <article
-                  key={foto.id}
+                  key={
+                    foto.id
+                  }
                   className={`
-                    companionPhotoCard
+                    group
+                    relative
+                    aspect-[4/5]
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    bg-[#17120f]
+
                     ${
                       fotoCapa ===
                       foto.url
-                        ? "cover"
-                        : ""
+                        ? "border-[#e09566]/60"
+                        : "border-white/[0.08]"
                     }
                   `}
                 >
 
                   <img
-                    src={foto.url}
+                    src={
+                      foto.url
+                    }
                     alt="Foto do perfil"
+                    className="
+                      h-full
+                      w-full
+                      object-cover
+                    "
+                  />
+
+
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-gradient-to-t
+                      from-black/80
+                      via-transparent
+                      to-transparent
+                    "
                   />
 
 
                   {fotoCapa ===
                     foto.url && (
 
-                    <span className="companionCoverBadge">
+                    <span
+                      className="
+                        absolute
+                        left-3
+                        top-3
+                        rounded-full
+                        bg-[#e09566]
+                        px-2.5
+                        py-1.5
+                        text-[7px]
+                        font-black
+                        tracking-[0.12em]
+                        text-[#160b07]
+                      "
+                    >
                       CAPA
                     </span>
 
                   )}
 
 
-                  <div className="companionPhotoActions">
+                  <div
+                    className="
+                      absolute
+                      bottom-3
+                      left-3
+                      right-3
+                      flex
+                      flex-col
+                      gap-2
+                      sm:flex-row
+                    "
+                  >
 
                     {fotoCapa !==
                       foto.url && (
@@ -1096,6 +1584,21 @@ export default function PerfilAcompanhantePage() {
                             foto
                           )
                         }
+                        className="
+                          min-h-9
+                          flex-1
+                          rounded-full
+                          border
+                          border-white/15
+                          bg-black/60
+                          px-3
+                          text-[8px]
+                          font-bold
+                          text-white/75
+                          backdrop-blur-md
+                          transition
+                          hover:bg-black/80
+                        "
                       >
                         Usar como capa
                       </button>
@@ -1105,12 +1608,25 @@ export default function PerfilAcompanhantePage() {
 
                     <button
                       type="button"
-                      className="delete"
                       onClick={() =>
                         excluirFoto(
                           foto
                         )
                       }
+                      className="
+                        min-h-9
+                        rounded-full
+                        border
+                        border-red-300/15
+                        bg-black/60
+                        px-3
+                        text-[8px]
+                        font-bold
+                        text-red-200/70
+                        backdrop-blur-md
+                        transition
+                        hover:bg-red-400/10
+                      "
                     >
                       Excluir
                     </button>
@@ -1123,13 +1639,35 @@ export default function PerfilAcompanhantePage() {
             )}
 
 
+            {/* ADICIONAR */}
+
             {fotos.length < 8 && (
 
-              <label className="companionPhotoUpload">
+              <label
+                className="
+                  flex
+                  aspect-[4/5]
+                  cursor-pointer
+                  flex-col
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-2xl
+                  border
+                  border-dashed
+                  border-[#e09566]/25
+                  bg-[#c46f43]/[0.035]
+                  px-4
+                  text-center
+                  transition
+                  hover:border-[#e09566]/45
+                  hover:bg-[#c46f43]/[0.06]
+                "
+              >
 
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   multiple
                   onChange={
                     enviarFotos
@@ -1137,21 +1675,63 @@ export default function PerfilAcompanhantePage() {
                   disabled={
                     enviandoFoto
                   }
+                  className="
+                    hidden
+                  "
                 />
 
 
-                <span>
-                  +
-                </span>
+                {enviandoFoto ? (
 
-                <strong>
+                  <div
+                    className="
+                      h-7
+                      w-7
+                      animate-spin
+                      rounded-full
+                      border-2
+                      border-white/10
+                      border-t-[#e09566]
+                    "
+                  />
+
+                ) : (
+
+                  <span
+                    className="
+                      text-4xl
+                      font-light
+                      text-[#e09566]
+                    "
+                  >
+                    +
+                  </span>
+
+                )}
+
+
+                <strong
+                  className="
+                    text-[10px]
+                    text-white/65
+                  "
+                >
                   {enviandoFoto
                     ? "Enviando..."
                     : "Adicionar fotos"}
                 </strong>
 
-                <small>
+
+                <small
+                  className="
+                    text-[8px]
+                    leading-4
+                    text-white/25
+                  "
+                >
                   JPG, PNG ou WEBP
+                  <br />
+                  até 8 MB
                 </small>
 
               </label>
@@ -1163,57 +1743,141 @@ export default function PerfilAcompanhantePage() {
         </section>
 
 
-        {/* INFORMAÇÕES */}
+        {/* =========================
+            FORMULÁRIO
+        ========================= */}
 
-        <section className="companionEditorSection">
+        <section
+          className="
+            rounded-[26px]
+            border
+            border-white/[0.07]
+            bg-white/[0.02]
+            p-5
+            sm:p-7
+          "
+        >
 
-          <div className="companionEditorSectionTitle">
+          <div
+            className="
+              mb-7
+            "
+          >
 
-            <div>
+            <span
+              className="
+                text-[9px]
+                font-black
+                uppercase
+                tracking-[0.22em]
+                text-[#c46f43]
+              "
+            >
+              PERFIL PÚBLICO
+            </span>
 
-              <span className="eyebrow">
-                PERFIL PÚBLICO
-              </span>
 
-              <h2>
-                Informações
-              </h2>
-
-            </div>
+            <h2
+              className="
+                mt-2
+                text-3xl
+                font-semibold
+                tracking-[-0.045em]
+                text-[#f3e9e2]
+              "
+            >
+              Suas informações
+            </h2>
 
           </div>
 
 
-          <div className="companionEditorForm">
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-5
+              md:grid-cols-2
+            "
+          >
 
 
-            <label className="companionField">
+            {/* NOME */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Nome de exibição
               </span>
+
 
               <input
                 type="text"
                 value={
                   nomeArtistico
                 }
-                onChange={(event) =>
-                  setNomeArtistico(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setNomeArtistico(
+                      event.target.value
+                    )
                 }
                 placeholder="Ex.: Júlia"
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
 
             </label>
 
 
-            <label className="companionField">
+            {/* IDADE */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Idade
               </span>
+
 
               <input
                 type="number"
@@ -1222,110 +1886,257 @@ export default function PerfilAcompanhantePage() {
                 value={
                   idade
                 }
-                onChange={(event) =>
-                  setIdade(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setIdade(
+                      event.target.value
+                    )
                 }
                 placeholder="25"
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
 
             </label>
 
 
-            <label className="companionField">
+            {/* TELEFONE */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Telefone
               </span>
+
 
               <input
                 type="tel"
                 value={
                   telefone
                 }
-                onChange={(event) =>
-                  setTelefone(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setTelefone(
+                      event.target.value
+                    )
                 }
                 placeholder="(81) 99999-9999"
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
 
             </label>
 
 
-            <label className="companionField">
+            {/* BAIRRO */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Bairro
               </span>
+
 
               <input
                 type="text"
                 value={
                   bairro
                 }
-                onChange={(event) =>
-                  setBairro(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setBairro(
+                      event.target.value
+                    )
                 }
                 placeholder="Piedade"
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
 
             </label>
 
 
-            <label className="companionField">
+            {/* CIDADE */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Cidade
               </span>
+
 
               <input
                 type="text"
                 value={
                   cidade
                 }
-                onChange={(event) =>
-                  setCidade(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setCidade(
+                      event.target.value
+                    )
                 }
                 placeholder="Jaboatão dos Guararapes"
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
 
             </label>
 
 
-            <label className="companionField">
+            {/* ESTADO */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Estado
               </span>
+
 
               <select
                 value={
                   estado
                 }
-                onChange={(event) =>
-                  setEstado(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setEstado(
+                      event.target.value
+                    )
                 }
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  focus:border-[#e09566]/45
+                "
               >
 
                 <option value="">
                   Selecione
                 </option>
 
+
                 {estados.map(
                   (uf) => (
 
                     <option
-                      key={uf}
-                      value={uf}
+                      key={
+                        uf
+                      }
+                      value={
+                        uf
+                      }
                     >
                       {uf}
                     </option>
@@ -1338,11 +2149,50 @@ export default function PerfilAcompanhantePage() {
             </label>
 
 
-            <label className="companionField companionFieldFull">
+            {/* FRASE */}
 
-              <span>
-                Frase do card
-              </span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+                md:col-span-2
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  gap-3
+                "
+              >
+
+                <span
+                  className="
+                    text-[9px]
+                    font-bold
+                    uppercase
+                    tracking-[0.1em]
+                    text-white/45
+                  "
+                >
+                  Frase do card
+                </span>
+
+
+                <small
+                  className="
+                    text-[8px]
+                    text-white/25
+                  "
+                >
+                  {descricaoCurta.length}/120
+                </small>
+
+              </div>
+
 
               <input
                 type="text"
@@ -1350,26 +2200,76 @@ export default function PerfilAcompanhantePage() {
                 value={
                   descricaoCurta
                 }
-                onChange={(event) =>
-                  setDescricaoCurta(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setDescricaoCurta(
+                      event.target.value
+                    )
                 }
                 placeholder="Uma frase curta para aparecer no seu card"
+                className="
+                  min-h-12
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  px-4
+                  text-sm
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
-
-              <small>
-                {descricaoCurta.length}/120
-              </small>
 
             </label>
 
 
-            <label className="companionField companionFieldFull">
+            {/* SOBRE */}
 
-              <span>
-                Sobre mim
-              </span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+                md:col-span-2
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  gap-3
+                "
+              >
+
+                <span
+                  className="
+                    text-[9px]
+                    font-bold
+                    uppercase
+                    tracking-[0.1em]
+                    text-white/45
+                  "
+                >
+                  Sobre mim
+                </span>
+
+
+                <small
+                  className="
+                    text-[8px]
+                    text-white/25
+                  "
+                >
+                  {sobre.length}/1200
+                </small>
+
+              </div>
+
 
               <textarea
                 rows={6}
@@ -1377,26 +2277,56 @@ export default function PerfilAcompanhantePage() {
                 value={
                   sobre
                 }
-                onChange={(event) =>
-                  setSobre(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setSobre(
+                      event.target.value
+                    )
                 }
                 placeholder="Conte um pouco sobre você..."
+                className="
+                  resize-y
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  p-4
+                  text-sm
+                  leading-6
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
-
-              <small>
-                {sobre.length}/1200
-              </small>
 
             </label>
 
 
-            <label className="companionField companionFieldFull">
+            {/* DISPONIBILIDADE */}
 
-              <span>
+            <label
+              className="
+                flex
+                flex-col
+                gap-2
+                md:col-span-2
+              "
+            >
+
+              <span
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.1em]
+                  text-white/45
+                "
+              >
                 Disponibilidade
               </span>
+
 
               <textarea
                 rows={3}
@@ -1404,12 +2334,28 @@ export default function PerfilAcompanhantePage() {
                 value={
                   disponibilidade
                 }
-                onChange={(event) =>
-                  setDisponibilidade(
-                    event.target.value
-                  )
+                onChange={
+                  (event) =>
+                    setDisponibilidade(
+                      event.target.value
+                    )
                 }
-                placeholder="Ex.: Consulte minha disponibilidade pelo perfil."
+                placeholder="Ex.: Disponível à noite e aos finais de semana."
+                className="
+                  resize-y
+                  rounded-xl
+                  border
+                  border-white/[0.08]
+                  bg-[#120e0c]
+                  p-4
+                  text-sm
+                  leading-6
+                  text-white/85
+                  outline-none
+                  transition
+                  placeholder:text-white/20
+                  focus:border-[#e09566]/45
+                "
               />
 
             </label>
@@ -1417,19 +2363,57 @@ export default function PerfilAcompanhantePage() {
           </div>
 
 
-          <div className="companionEditorFooter">
+          {/* RODAPÉ */}
+
+          <div
+            className="
+              mt-8
+              flex
+              flex-col
+              gap-6
+              border-t
+              border-white/[0.06]
+              pt-6
+              sm:flex-row
+              sm:items-center
+              sm:justify-between
+            "
+          >
 
             <div>
 
-              <small>
+              <span
+                className="
+                  text-[8px]
+                  font-black
+                  uppercase
+                  tracking-[0.14em]
+                  text-white/25
+                "
+              >
                 CATEGORIA
-              </small>
+              </span>
 
-              <strong>
+
+              <strong
+                className="
+                  mt-1
+                  block
+                  text-lg
+                  text-[#d2a86b]
+                "
+              >
                 {nomePlano()}
               </strong>
 
-              <p>
+
+              <p
+                className="
+                  mt-1
+                  text-[9px]
+                  text-white/25
+                "
+              >
                 A categoria é definida
                 pela administração.
               </p>
@@ -1445,12 +2429,25 @@ export default function PerfilAcompanhantePage() {
               disabled={
                 salvando
               }
+              className="
+                min-h-12
+                rounded-full
+                bg-gradient-to-r
+                from-[#e09566]
+                to-[#c46f43]
+                px-7
+                text-[10px]
+                font-black
+                text-[#160b07]
+                transition
+                hover:-translate-y-0.5
+                disabled:cursor-wait
+                disabled:opacity-50
+              "
             >
-
               {salvando
                 ? "Salvando..."
                 : "Salvar alterações"}
-
             </button>
 
           </div>
@@ -1458,20 +2455,50 @@ export default function PerfilAcompanhantePage() {
         </section>
 
 
+        {/* PERFIL PÚBLICO */}
+
         {status ===
           "aprovado" && (
 
-          <div className="companionPreview">
+          <div
+            className="
+              mt-7
+              flex
+              justify-center
+            "
+          >
 
             <Link
-              href={`/perfil/${userId}`}
+              href={
+                `/perfil/${userId}`
+              }
+              className="
+                inline-flex
+                items-center
+                gap-2
+                rounded-full
+                border
+                border-[#e09566]/20
+                bg-[#c46f43]/[0.05]
+                px-5
+                py-3
+                text-[10px]
+                font-bold
+                text-[#e09566]
+                transition
+                hover:bg-[#c46f43]/10
+              "
             >
-              Ver meu perfil público ↗
+              Ver meu perfil público
+              <span>
+                ↗
+              </span>
             </Link>
 
           </div>
 
         )}
+
 
       </div>
 

@@ -32,25 +32,17 @@ type Profissional = {
 
 
 function ProfissionaisContent() {
-
   const router = useRouter();
-
-  const searchParams =
-    useSearchParams();
-
+  const searchParams = useSearchParams();
 
   const plano =
-    searchParams.get("plano") ||
-    "x";
-
+    searchParams.get("plano") || "x";
 
   const cidade =
     searchParams.get("cidade");
 
-
   const bairro =
     searchParams.get("bairro");
-
 
   const [
     profissionais,
@@ -58,13 +50,11 @@ function ProfissionaisContent() {
   ] =
     useState<Profissional[]>([]);
 
-
   const [
     indice,
     setIndice,
   ] =
     useState(0);
-
 
   const [
     loading,
@@ -72,13 +62,17 @@ function ProfissionaisContent() {
   ] =
     useState(true);
 
+  const [
+    erro,
+    setErro,
+  ] =
+    useState("");
 
   const [
     message,
     setMessage,
   ] =
     useState("");
-
 
   const [
     animacao,
@@ -92,12 +86,12 @@ function ProfissionaisContent() {
 
 
   useEffect(() => {
-
     async function carregar() {
+      setLoading(true);
+      setErro("");
 
       const supabase =
         createClient();
-
 
       let query =
         supabase
@@ -124,28 +118,21 @@ function ProfissionaisContent() {
             plano
           );
 
-
       if (cidade) {
-
         query =
           query.eq(
             "cidade",
             cidade
           );
-
       }
 
-
       if (bairro) {
-
         query =
           query.eq(
             "bairro",
             bairro
           );
-
       }
-
 
       const {
         data,
@@ -158,35 +145,25 @@ function ProfissionaisContent() {
           }
         );
 
-
       if (error) {
-
         console.error(error);
 
-
-        setMessage(
+        setErro(
           "Não foi possível carregar os perfis."
         );
-
 
         setLoading(false);
 
         return;
-
       }
-
 
       setProfissionais(
         data || []
       );
 
-
       setIndice(0);
-
       setLoading(false);
-
     }
-
 
     carregar();
 
@@ -206,49 +183,37 @@ function ProfissionaisContent() {
       | "like"
       | "dislike"
   ) {
-
     setAnimacao(tipo);
-
 
     window.setTimeout(
       () => {
-
         setIndice(
           (valor) =>
             valor + 1
         );
 
-
         setAnimacao(null);
-
+        setMessage("");
       },
       280
     );
-
   }
 
 
-  async function recusar() {
-
+  function recusar() {
     proximo(
       "dislike"
     );
-
   }
 
 
   async function curtir() {
-
     if (!atual) {
-
       return;
-
     }
-
 
     const supabase =
       createClient();
-
 
     const {
       data: {
@@ -257,17 +222,13 @@ function ProfissionaisContent() {
     } =
       await supabase.auth.getUser();
 
-
     if (!user) {
-
       router.push(
         "/login"
       );
 
       return;
-
     }
-
 
     const {
       data: profile,
@@ -281,20 +242,16 @@ function ProfissionaisContent() {
         )
         .single();
 
-
     if (
       profile?.role !==
       "cliente"
     ) {
-
       setMessage(
         "Entre com uma conta de cliente para demonstrar interesse."
       );
 
       return;
-
     }
-
 
     const {
       error,
@@ -324,20 +281,15 @@ function ProfissionaisContent() {
           }
         );
 
-
     if (error) {
-
       console.error(error);
-
 
       setMessage(
         "Não foi possível registrar seu interesse."
       );
 
       return;
-
     }
-
 
     setMessage(
       `Interesse enviado para ${
@@ -346,192 +298,450 @@ function ProfissionaisContent() {
       }.`
     );
 
-
     proximo(
       "like"
     );
-
   }
 
 
   function nomePlano() {
-
     if (
       plano ===
       "comfort"
     ) {
-
       return "Comfort";
-
     }
-
 
     if (
       plano ===
       "black"
     ) {
-
       return "Black";
-
     }
 
-
     return "X";
+  }
 
+
+  function classePlano() {
+    if (
+      plano ===
+      "black"
+    ) {
+      return `
+        border-[#d2a86b]/30
+        text-[#e9c785]
+      `;
+    }
+
+    if (
+      plano ===
+      "comfort"
+    ) {
+      return `
+        border-[#e09566]/25
+        text-[#e7a77f]
+      `;
+    }
+
+    return `
+      border-white/15
+      text-white
+    `;
   }
 
 
   if (loading) {
-
     return (
-      <main className="discoveryPage">
-
-        <div className="discoveryLoading">
-
-          <span
-            className="loginLoader"
+      <main
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-[#0b0908]
+          px-5
+          text-[#f8f1e8]
+        "
+      >
+        <div
+          className="
+            flex
+            flex-col
+            items-center
+            gap-4
+          "
+        >
+          <div
+            className="
+              h-8
+              w-8
+              animate-spin
+              rounded-full
+              border-2
+              border-white/10
+              border-t-[#c46f43]
+            "
           />
 
-          <p>
+          <p
+            className="
+              text-xs
+              text-white/45
+            "
+          >
             Buscando perfis...
           </p>
-
         </div>
-
       </main>
     );
+  }
 
+
+  if (erro) {
+    return (
+      <main
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-[#0b0908]
+          px-5
+          text-[#f8f1e8]
+        "
+      >
+        <section
+          className="
+            w-full
+            max-w-md
+            rounded-[28px]
+            border
+            border-white/10
+            bg-white/[0.025]
+            p-8
+            text-center
+          "
+        >
+          <span
+            className="
+              text-3xl
+              text-[#c46f43]
+            "
+          >
+            !
+          </span>
+
+          <h2
+            className="
+              mt-4
+              text-2xl
+              font-semibold
+              tracking-[-0.04em]
+            "
+          >
+            Não foi possível carregar
+          </h2>
+
+          <p
+            className="
+              mt-3
+              text-sm
+              leading-6
+              text-white/45
+            "
+          >
+            {erro}
+          </p>
+
+          <Link
+            href="/cliente"
+            className="
+              mt-7
+              inline-flex
+              min-h-12
+              items-center
+              justify-center
+              rounded-full
+              bg-gradient-to-r
+              from-[#e09566]
+              to-[#c46f43]
+              px-6
+              text-xs
+              font-bold
+              text-[#160b07]
+            "
+          >
+            Voltar
+          </Link>
+        </section>
+      </main>
+    );
   }
 
 
   return (
-    <main className="discoveryPage">
-
-      <div className="discoveryContainer">
-
+    <main
+      className="
+        min-h-screen
+        bg-[#0b0908]
+        px-4
+        py-8
+        text-[#f8f1e8]
+        md:px-6
+        md:py-12
+      "
+    >
+      <div
+        className="
+          mx-auto
+          w-full
+          max-w-6xl
+        "
+      >
 
         {/* CABEÇALHO */}
 
-        <div className="discoveryHeader">
-
+        <header
+          className="
+            mb-8
+            flex
+            flex-col
+            gap-5
+            md:flex-row
+            md:items-end
+            md:justify-between
+          "
+        >
           <div>
-
-            <span className="eyebrow">
+            <span
+              className="
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.22em]
+                text-[#c46f43]
+              "
+            >
               {nomePlano()}
             </span>
 
+            <h1
+              className="
+                mt-2
+                max-w-2xl
+                text-[40px]
+                font-semibold
+                leading-[0.95]
+                tracking-[-0.055em]
+                text-[#fff7f1]
+                md:text-6xl
+              "
+            >
+              Descubra quem{" "}
 
-            <h1>
-              Descubra quem
-              <em>
-                {" "}
+              <span
+                className="
+                  text-[#d17b50]
+                "
+              >
                 desperta seu interesse.
-              </em>
-            </h1>
-
-          </div>
-
-
-          <div className="discoveryLocation">
-
-            {cidade && (
-
-              <strong>
-                {cidade}
-              </strong>
-
-            )}
-
-
-            {bairro && (
-
-              <span>
-                {bairro}
               </span>
-
-            )}
-
+            </h1>
           </div>
 
-        </div>
+
+          {(cidade || bairro) && (
+            <div
+              className="
+                flex
+                flex-col
+                gap-1
+                md:items-end
+              "
+            >
+              {cidade && (
+                <strong
+                  className="
+                    text-xs
+                    font-medium
+                    text-white/80
+                  "
+                >
+                  {cidade}
+                </strong>
+              )}
+
+              {bairro && (
+                <span
+                  className="
+                    text-[10px]
+                    text-white/40
+                  "
+                >
+                  {bairro}
+                </span>
+              )}
+            </div>
+          )}
+        </header>
 
 
         {/* MENSAGEM */}
 
         {message && (
-
-          <div className="discoveryMessage">
+          <div
+            className="
+              mx-auto
+              mb-4
+              w-full
+              max-w-[430px]
+              rounded-2xl
+              border
+              border-[#e09566]/15
+              bg-[#c46f43]/[0.06]
+              px-4
+              py-3
+              text-[11px]
+              text-white/65
+            "
+          >
             {message}
           </div>
-
         )}
 
 
-        {/* ACABARAM OS PERFIS */}
+        {/* SEM MAIS PERFIS */}
 
         {!atual ? (
 
-          <section className="discoveryEmpty">
-
-            <span>
+          <section
+            className="
+              mx-auto
+              mt-24
+              w-full
+              max-w-md
+              text-center
+            "
+          >
+            <span
+              className="
+                text-3xl
+                text-[#c46f43]
+              "
+            >
               ✦
             </span>
 
-
-            <h2>
+            <h2
+              className="
+                mt-4
+                text-3xl
+                font-semibold
+                tracking-[-0.04em]
+                text-[#f8f1e8]
+              "
+            >
               Você chegou ao fim
             </h2>
 
-
-            <p>
+            <p
+              className="
+                mx-auto
+                mt-3
+                max-w-sm
+                text-sm
+                leading-6
+                text-white/40
+              "
+            >
               Não há mais perfis disponíveis
               nesta seleção por enquanto.
             </p>
 
-
             <Link
               href="/cliente"
-              className="heroButton"
+              className="
+                mt-7
+                inline-flex
+                min-h-12
+                items-center
+                justify-center
+                rounded-full
+                bg-gradient-to-r
+                from-[#e09566]
+                to-[#c46f43]
+                px-6
+                text-xs
+                font-bold
+                text-[#160b07]
+                transition
+                hover:-translate-y-0.5
+              "
             >
               Voltar às opções
             </Link>
-
           </section>
 
         ) : (
 
-          <div className="discoveryDeck">
-
+          <div
+            className="
+              mx-auto
+              w-full
+              max-w-[430px]
+            "
+          >
 
             {/* CARD */}
 
             <article
               className={`
-                discoveryCard
+                overflow-hidden
+                rounded-[30px]
+                border
+                border-white/[0.08]
+                bg-[#15110f]
+                shadow-[0_35px_90px_rgba(0,0,0,0.52)]
+                transition-all
+                duration-300
+
                 ${
                   animacao === "like"
-                    ? "discoveryLike"
+                    ? "translate-x-[120px] rotate-[8deg] opacity-0"
                     : ""
                 }
+
                 ${
                   animacao === "dislike"
-                    ? "discoveryDislike"
+                    ? "-translate-x-[120px] -rotate-[8deg] opacity-0"
                     : ""
                 }
               `}
             >
 
-
               <Link
                 href={`/perfil/${atual.id}`}
-                className="discoveryCardLink"
+                className="
+                  block
+                  text-inherit
+                  no-underline
+                "
               >
 
-                <div className="discoveryPhoto">
+                {/* FOTO */}
 
+                <div
+                  className="
+                    relative
+                    h-[520px]
+                    overflow-hidden
+                    bg-[#181310]
+                    sm:h-[560px]
+                  "
+                >
 
                   {atual.foto_capa ? (
-
                     <img
                       src={
                         atual.foto_capa
@@ -540,101 +750,193 @@ function ProfissionaisContent() {
                         atual.nome_artistico ||
                         "Perfil"
                       }
+                      className="
+                        h-full
+                        w-full
+                        object-cover
+                        transition-transform
+                        duration-500
+                        hover:scale-[1.025]
+                      "
                     />
-
                   ) : (
-
-                    <div className="discoveryPhotoPlaceholder">
-
-                      <span>
+                    <div
+                      className="
+                        flex
+                        h-full
+                        w-full
+                        flex-col
+                        items-center
+                        justify-center
+                        gap-2
+                        bg-[radial-gradient(circle,rgba(196,111,67,0.10),transparent_50%)]
+                      "
+                    >
+                      <span
+                        className="
+                          text-4xl
+                          text-[#704b39]
+                        "
+                      >
                         ✦
                       </span>
 
-                      <small>
+                      <small
+                        className="
+                          text-[10px]
+                          text-white/35
+                        "
+                      >
                         Foto em breve
                       </small>
-
                     </div>
-
                   )}
 
 
-                  <div className="discoveryGradient" />
+                  {/* GRADIENTE */}
+
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-gradient-to-b
+                      from-transparent
+                      via-transparent
+                      to-black/90
+                    "
+                  />
 
 
                   {/* PLANO */}
 
                   <span
-                    className={
-                      `discoveryPlan discoveryPlan-${plano}`
-                    }
+                    className={`
+                      absolute
+                      left-5
+                      top-5
+                      rounded-full
+                      border
+                      bg-black/45
+                      px-3
+                      py-2
+                      text-[9px]
+                      font-black
+                      uppercase
+                      tracking-[0.15em]
+                      backdrop-blur-xl
+                      ${classePlano()}
+                    `}
                   >
                     {nomePlano()}
                   </span>
 
 
-                  {/* DADOS */}
+                  {/* INFORMAÇÕES */}
 
-                  <div className="discoveryInfo">
-
+                  <div
+                    className="
+                      absolute
+                      bottom-5
+                      left-5
+                      right-5
+                      z-10
+                      flex
+                      items-end
+                      justify-between
+                      gap-4
+                    "
+                  >
                     <div>
 
-                      <h2>
-
+                      <h2
+                        className="
+                          m-0
+                          text-[34px]
+                          font-semibold
+                          leading-none
+                          tracking-[-0.05em]
+                          text-white
+                        "
+                      >
                         {atual.nome_artistico ||
                           "Perfil"}
 
-
                         {atual.idade && (
-
-                          <small>
-                            {" "}
+                          <span
+                            className="
+                              ml-2
+                              text-xl
+                              font-normal
+                              text-white/70
+                            "
+                          >
                             {atual.idade}
-                          </small>
-
+                          </span>
                         )}
-
                       </h2>
 
 
-                      <p>
-
+                      <p
+                        className="
+                          mt-2
+                          text-[11px]
+                          text-white/65
+                        "
+                      >
                         {atual.bairro &&
                           `${atual.bairro} • `}
 
-
                         {atual.cidade}
-
 
                         {atual.estado &&
                           `, ${atual.estado}`}
-
                       </p>
-
                     </div>
 
 
-                    <span className="discoveryOpen">
-
+                    <span
+                      className="
+                        flex
+                        items-center
+                        gap-1
+                        whitespace-nowrap
+                        text-[9px]
+                        text-white/70
+                      "
+                    >
                       Ver perfil
 
-                      <b>
+                      <b
+                        className="
+                          text-sm
+                          text-[#d17b50]
+                        "
+                      >
                         ↗
                       </b>
-
                     </span>
-
                   </div>
 
                 </div>
 
 
-                {atual.descricao_curta && (
+                {/* BIO */}
 
-                  <p className="discoveryBio">
+                {atual.descricao_curta && (
+                  <p
+                    className="
+                      m-0
+                      px-5
+                      pb-1
+                      pt-4
+                      text-[11px]
+                      leading-6
+                      text-white/45
+                    "
+                  >
                     {atual.descricao_curta}
                   </p>
-
                 )}
 
               </Link>
@@ -642,15 +944,40 @@ function ProfissionaisContent() {
 
               {/* AÇÕES */}
 
-              <div className="discoveryActions">
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-center
+                  gap-7
+                  px-5
+                  pb-6
+                  pt-5
+                "
+              >
 
                 <button
                   type="button"
-                  className="discoveryReject"
                   onClick={
                     recusar
                   }
                   aria-label="Não tenho interesse"
+                  className="
+                    grid
+                    h-14
+                    w-14
+                    place-items-center
+                    rounded-full
+                    border
+                    border-white/10
+                    bg-white/[0.035]
+                    text-xl
+                    text-white/45
+                    transition
+                    hover:-translate-y-1
+                    hover:bg-white/[0.07]
+                    hover:text-white/80
+                  "
                 >
                   ✕
                 </button>
@@ -658,11 +985,26 @@ function ProfissionaisContent() {
 
                 <button
                   type="button"
-                  className="discoveryHeart"
                   onClick={
                     curtir
                   }
                   aria-label="Demonstrar interesse"
+                  className="
+                    grid
+                    h-[68px]
+                    w-[68px]
+                    place-items-center
+                    rounded-full
+                    bg-gradient-to-br
+                    from-[#f2ab7c]
+                    to-[#c35f3c]
+                    text-[28px]
+                    text-[#190b08]
+                    shadow-[0_15px_38px_rgba(196,95,60,0.24)]
+                    transition
+                    hover:-translate-y-1
+                    hover:scale-105
+                  "
                 >
                   ♥
                 </button>
@@ -674,12 +1016,17 @@ function ProfissionaisContent() {
 
             {/* CONTADOR */}
 
-            <p className="discoveryCounter">
-
+            <p
+              className="
+                mt-4
+                text-center
+                text-[9px]
+                text-white/30
+              "
+            >
               {indice + 1}
               {" de "}
               {profissionais.length}
-
             </p>
 
           </div>
@@ -687,51 +1034,62 @@ function ProfissionaisContent() {
         )}
 
       </div>
-
     </main>
   );
-
 }
 
 
 /*
-  COMPONENTE PRINCIPAL
-
-  O useSearchParams está dentro
-  do ProfissionaisContent.
-
-  Por isso ele precisa ficar
-  dentro do Suspense.
+  O useSearchParams precisa estar
+  dentro do Suspense no Next.js 15.
 */
 
 export default function ProfissionaisPage() {
-
   return (
-
     <Suspense
       fallback={
-        <main className="discoveryPage">
-
-          <div className="discoveryLoading">
-
-            <span
-              className="loginLoader"
+        <main
+          className="
+            flex
+            min-h-screen
+            items-center
+            justify-center
+            bg-[#0b0908]
+          "
+        >
+          <div
+            className="
+              flex
+              flex-col
+              items-center
+              gap-4
+            "
+          >
+            <div
+              className="
+                h-8
+                w-8
+                animate-spin
+                rounded-full
+                border-2
+                border-white/10
+                border-t-[#c46f43]
+              "
             />
 
-            <p>
+            <p
+              className="
+                text-xs
+                text-white/45
+              "
+            >
               Buscando perfis...
             </p>
-
           </div>
-
         </main>
       }
     >
-
       <ProfissionaisContent />
-
     </Suspense>
-
   );
-
 }
