@@ -38,6 +38,54 @@ type Match = {
 };
 
 
+type ClienteResumo = {
+  id: string;
+  full_name: string | null;
+};
+
+
+function criarMapaClientes(
+  data: unknown
+): Record<string, ClienteResumo> {
+
+  const mapa:
+    Record<string, ClienteResumo> = {};
+
+
+  if (!Array.isArray(data)) {
+    return mapa;
+  }
+
+
+  const lista =
+    data as ClienteResumo[];
+
+
+  lista.forEach(
+    (cliente: ClienteResumo) => {
+
+      if (!cliente?.id) {
+        return;
+      }
+
+
+      mapa[cliente.id] = {
+        id:
+          cliente.id,
+
+        full_name:
+          cliente.full_name ??
+          null,
+      };
+
+    }
+  );
+
+
+  return mapa;
+}
+
+
 export default function PainelAcompanhantePage() {
 
   const router =
@@ -65,6 +113,27 @@ export default function PainelAcompanhantePage() {
     setMatches,
   ] =
     useState<Match[]>([]);
+
+
+  const [
+    clientes,
+    setClientes,
+  ] =
+    useState<
+      Record<
+        string,
+        ClienteResumo
+      >
+    >({});
+
+
+  const [
+    processandoMatch,
+    setProcessandoMatch,
+  ] =
+    useState<string | null>(
+      null
+    );
 
 
   const [
@@ -243,7 +312,7 @@ export default function PainelAcompanhantePage() {
 
 
       setInteresses(
-        interessesData || []
+        (interessesData || []) as Interesse[]
       );
 
 
@@ -291,8 +360,50 @@ export default function PainelAcompanhantePage() {
       }
 
 
+      const listaMatches =
+        (matchesData || []) as Match[];
+
+
       setMatches(
-        matchesData || []
+        listaMatches
+      );
+
+
+      /*
+        NOMES DOS CLIENTES
+
+        A leitura é feita por RPC porque a acompanhante
+        não deve ter acesso livre à tabela profiles.
+        A função retorna somente clientes relacionados
+        a interesses ou matches desta acompanhante.
+      */
+
+      const {
+        data:
+          clientesData,
+        error:
+          clientesError,
+      } =
+        await supabase.rpc(
+          "get_clientes_para_acompanhante"
+        );
+
+
+      if (
+        clientesError
+      ) {
+
+        console.error(
+          clientesError
+        );
+
+      }
+
+
+      setClientes(
+        criarMapaClientes(
+          clientesData
+        )
       );
 
 
@@ -357,9 +468,9 @@ export default function PainelAcompanhantePage() {
 
 
     setInteresses(
-      (lista) =>
+      (lista: Interesse[]) =>
         lista.filter(
-          (item) =>
+          (item: Interesse) =>
             item.id !== id
         )
     );
@@ -412,9 +523,41 @@ export default function PainelAcompanhantePage() {
             );
 
 
+        const listaAtualizada =
+          (matchesAtualizados || []) as Match[];
+
+
         setMatches(
-          matchesAtualizados ||
-          []
+          listaAtualizada
+        );
+
+
+        const {
+          data:
+            clientesData,
+          error:
+            clientesError,
+        } =
+          await supabase.rpc(
+            "get_clientes_para_acompanhante"
+          );
+
+
+        if (
+          clientesError
+        ) {
+
+          console.error(
+            clientesError
+          );
+
+        }
+
+
+        setClientes(
+          criarMapaClientes(
+            clientesData
+          )
         );
 
       }
@@ -426,6 +569,208 @@ export default function PainelAcompanhantePage() {
       );
 
     }
+
+  }
+
+
+  /*
+    MARCAR MATCH COMO ATENDIDO
+  */
+
+  async function marcarComoAtendido(
+    match: Match
+  ) {
+
+    if (
+      processandoMatch
+    ) {
+      return;
+    }
+
+
+    const confirmou =
+      window.confirm(
+        `Marcar o atendimento de ${nomeCliente(
+          match.cliente_id
+        )} como concluído?`
+      );
+
+
+    if (!confirmou) {
+      return;
+    }
+
+
+    setProcessandoMatch(
+      match.id
+    );
+
+    setMessage("");
+    setErro("");
+
+
+    const supabase =
+      createClient();
+
+
+    const {
+      error,
+    } =
+      await supabase.rpc(
+        "marcar_match_atendido",
+        {
+          p_match_id:
+            match.id,
+        }
+      );
+
+
+    if (error) {
+
+      console.error(
+        error
+      );
+
+      setErro(
+        error.message ||
+          "Não foi possível marcar o atendimento como concluído."
+      );
+
+      setProcessandoMatch(
+        null
+      );
+
+      return;
+    }
+
+
+    setMatches(
+      (
+        lista:
+          Match[]
+      ) =>
+        lista.filter(
+          (
+            item:
+              Match
+          ) =>
+            item.id !==
+            match.id
+        )
+    );
+
+
+    setMessage(
+      `${nomeCliente(
+        match.cliente_id
+      )} foi marcado como atendido.`
+    );
+
+
+    setProcessandoMatch(
+      null
+    );
+
+  }
+
+
+  /*
+    EXCLUIR MATCH
+  */
+
+  async function excluirMatch(
+    match: Match
+  ) {
+
+    if (
+      processandoMatch
+    ) {
+      return;
+    }
+
+
+    const confirmou =
+      window.confirm(
+        `Excluir o match com ${nomeCliente(
+          match.cliente_id
+        )}? O chat e as mensagens desta conexão também serão apagados.`
+      );
+
+
+    if (!confirmou) {
+      return;
+    }
+
+
+    setProcessandoMatch(
+      match.id
+    );
+
+    setMessage("");
+    setErro("");
+
+
+    const supabase =
+      createClient();
+
+
+    const {
+      error,
+    } =
+      await supabase.rpc(
+        "excluir_match_acompanhante",
+        {
+          p_match_id:
+            match.id,
+        }
+      );
+
+
+    if (error) {
+
+      console.error(
+        error
+      );
+
+      setErro(
+        error.message ||
+          "Não foi possível excluir o match."
+      );
+
+      setProcessandoMatch(
+        null
+      );
+
+      return;
+    }
+
+
+    setMatches(
+      (
+        lista:
+          Match[]
+      ) =>
+        lista.filter(
+          (
+            item:
+              Match
+          ) =>
+            item.id !==
+            match.id
+        )
+    );
+
+
+    setMessage(
+      `Match com ${nomeCliente(
+        match.cliente_id
+      )} excluído.`
+    );
+
+
+    setProcessandoMatch(
+      null
+    );
 
   }
 
@@ -500,6 +845,25 @@ export default function PainelAcompanhantePage() {
 
 
     return "Em análise";
+
+  }
+
+
+  function nomeCliente(
+    clienteId: string
+  ) {
+
+    const nome =
+      clientes[
+        clienteId
+      ]?.full_name
+        ?.trim();
+
+
+    return (
+      nome ||
+      "Cliente"
+    );
 
   }
 
@@ -1058,18 +1422,32 @@ export default function PainelAcompanhantePage() {
             >
 
               {interesses.map(
-                (interesse) => (
+                (interesse: Interesse) => {
+
+                  const clienteNome =
+                    nomeCliente(
+                      interesse.cliente_id
+                    );
+
+
+                  return (
 
                   <article
                     key={
                       interesse.id
                     }
                     className="
+                      flex
+                      aspect-square
+                      w-full
+                      max-w-[270px]
+                      flex-col
+                      justify-between
                       rounded-2xl
                       border
                       border-white/[0.07]
                       bg-white/[0.025]
-                      p-5
+                      p-4
                     "
                   >
 
@@ -1110,7 +1488,7 @@ export default function PainelAcompanhantePage() {
                             text-white/80
                           "
                         >
-                          Novo interesse
+                          {clienteNome}
                         </strong>
 
 
@@ -1122,7 +1500,7 @@ export default function PainelAcompanhantePage() {
                             text-white/35
                           "
                         >
-                          Um cliente demonstrou
+                          {clienteNome} demonstrou
                           interesse no seu perfil.
                         </p>
 
@@ -1210,7 +1588,9 @@ export default function PainelAcompanhantePage() {
 
                   </article>
 
-                )
+                  );
+
+                }
               )}
 
             </div>
@@ -1306,21 +1686,26 @@ export default function PainelAcompanhantePage() {
                 grid-cols-1
                 gap-3
                 sm:grid-cols-2
-                lg:grid-cols-3
+                lg:grid-cols-4
               "
             >
 
               {matches.map(
-                (match) => (
+                (match: Match) => {
+
+                  const clienteNome =
+                    nomeCliente(
+                      match.cliente_id
+                    );
+
+
+                  return (
 
                   <article
                     key={
                       match.id
                     }
                     className="
-                      flex
-                      items-center
-                      gap-4
                       rounded-2xl
                       border
                       border-white/[0.07]
@@ -1331,67 +1716,217 @@ export default function PainelAcompanhantePage() {
 
                     <div
                       className="
-                        grid
-                        h-11
-                        w-11
-                        shrink-0
-                        place-items-center
-                        rounded-full
-                        bg-[#d2a86b]/10
-                        text-[#d2a86b]
+                        flex
+                        items-center
+                        gap-4
                       "
                     >
-                      ✦
+
+                      <div
+                        className="
+                          grid
+                          h-11
+                          w-11
+                          shrink-0
+                          place-items-center
+                          rounded-full
+                          bg-[#d2a86b]/10
+                          text-[#d2a86b]
+                        "
+                      >
+                        ✦
+                      </div>
+
+
+                      <div
+                        className="
+                          min-w-0
+                          flex-1
+                        "
+                      >
+
+                        <strong
+                          className="
+                            block
+                            truncate
+                            text-sm
+                            text-white/80
+                          "
+                        >
+                          {clienteNome}
+                        </strong>
+
+
+                        <span
+                          className="
+                            mt-1
+                            block
+                            text-[9px]
+                            text-white/30
+                          "
+                        >
+                          Match confirmado
+                          {" • "}
+                          {new Date(
+                            match.created_at
+                          ).toLocaleDateString(
+                            "pt-BR"
+                          )}
+                        </span>
+
+                      </div>
+
                     </div>
 
 
                     <div
                       className="
-                        min-w-0
-                        flex-1
+                        mt-5
+                        border-t
+                        border-white/[0.06]
+                        pt-4
                       "
                     >
 
-                      <strong
+                      <Link
+                        href={
+                          `/chat/${match.id}`
+                        }
                         className="
-                          block
-                          text-sm
-                          text-white/80
+                          flex
+                          min-h-11
+                          w-full
+                          items-center
+                          justify-center
+                          gap-2
+                          rounded-full
+                          bg-gradient-to-r
+                          from-[#e09566]
+                          to-[#c46f43]
+                          px-5
+                          text-[10px]
+                          font-black
+                          text-[#160b07]
+                          transition
+                          hover:-translate-y-0.5
+                          hover:shadow-[0_10px_28px_rgba(196,111,67,0.18)]
                         "
                       >
-                        Match confirmado
-                      </strong>
+                        Conversar
+                        <span
+                          className="
+                            text-sm
+                          "
+                        >
+                          →
+                        </span>
+                      </Link>
 
 
-                      <span
+                      <div
                         className="
-                          mt-1
-                          block
-                          text-[9px]
-                          text-white/30
+                          mt-2.5
+                          flex
+                          items-center
+                          justify-center
+                          gap-3
                         "
                       >
-                        {new Date(
-                          match.created_at
-                        ).toLocaleDateString(
-                          "pt-BR"
-                        )}
-                      </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            marcarComoAtendido(
+                              match
+                            )
+                          }
+                          disabled={
+                            processandoMatch ===
+                            match.id
+                          }
+                          className="
+                            inline-flex
+                            min-h-8
+                            items-center
+                            justify-center
+                            gap-1.5
+                            rounded-full
+                            px-3
+                            text-[9px]
+                            font-semibold
+                            text-white/40
+                            transition
+                            hover:bg-white/[0.035]
+                            hover:text-[#e09566]
+                            disabled:cursor-wait
+                            disabled:opacity-35
+                          "
+                        >
+                          <span
+                            className="
+                              text-[10px]
+                              text-[#d2a86b]/70
+                            "
+                          >
+                            ✓
+                          </span>
+
+                          {processandoMatch ===
+                          match.id
+                            ? "Aguarde..."
+                            : "Atendido"}
+                        </button>
+
+
+                        <span
+                          className="
+                            h-3
+                            w-px
+                            bg-white/10
+                          "
+                        />
+
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            excluirMatch(
+                              match
+                            )
+                          }
+                          disabled={
+                            processandoMatch ===
+                            match.id
+                          }
+                          className="
+                            inline-flex
+                            min-h-8
+                            items-center
+                            justify-center
+                            rounded-full
+                            px-3
+                            text-[9px]
+                            font-medium
+                            text-white/25
+                            transition
+                            hover:bg-red-400/[0.04]
+                            hover:text-red-200/65
+                            disabled:cursor-wait
+                            disabled:opacity-35
+                          "
+                        >
+                          Excluir
+                        </button>
+
+                      </div>
 
                     </div>
 
-
-                    <span
-                      className="
-                        text-[#e09566]
-                      "
-                    >
-                      →
-                    </span>
-
                   </article>
 
-                )
+                  );
+
+                }
               )}
 
             </div>

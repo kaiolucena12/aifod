@@ -1210,60 +1210,34 @@ export default function ClientePage() {
                             "
                           >
 
-                            {profissional.preco_hora_centavos &&
-                            profissional.preco_hora_centavos > 0 ? (
-
-                              <Link
-                                href={
-                                  `/reserva/${match.id}`
-                                }
-                                className="
-                                  flex
-                                  min-h-11
-                                  w-full
-                                  items-center
-                                  justify-center
-                                  gap-2
-                                  rounded-full
-                                  bg-gradient-to-r
-                                  from-[#e09566]
-                                  to-[#c46f43]
-                                  px-4
-                                  text-[9px]
-                                  font-black
-                                  uppercase
-                                  tracking-[0.08em]
-                                  text-[#160b07]
-                                  transition
-                                  hover:-translate-y-0.5
-                                "
-                              >
-                                Continuar
-                                <span>→</span>
-                              </Link>
-
-                            ) : (
-
-                              <div
-                                className="
-                                  flex
-                                  min-h-11
-                                  items-center
-                                  justify-center
-                                  rounded-full
-                                  border
-                                  border-white/[0.07]
-                                  bg-white/[0.02]
-                                  px-4
-                                  text-center
-                                  text-[8px]
-                                  text-white/30
-                                "
-                              >
-                                Aguardando definição do valor
-                              </div>
-
-                            )}
+                            <Link
+                              href={
+                                `/chat/${match.id}`
+                              }
+                              className="
+                                flex
+                                min-h-11
+                                w-full
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-full
+                                bg-gradient-to-r
+                                from-[#e09566]
+                                to-[#c46f43]
+                                px-4
+                                text-[9px]
+                                font-black
+                                uppercase
+                                tracking-[0.08em]
+                                text-[#160b07]
+                                transition
+                                hover:-translate-y-0.5
+                              "
+                            >
+                              Conversar
+                              <span>→</span>
+                            </Link>
 
                           </div>
 
